@@ -1,32 +1,5 @@
 import copy
 
-# --------------- Constants ---------------
-TOP_LEFT_CORNER = "0 0"
-TOP_RIGHT_CORNER = "0 3"
-BOTTOM_LEFT_CORNER = "1 0"
-BOTTOM_RIGHT_CORNER = "1 3"
-
-# --------------- Global Variables ---------------
-_openList = []
-_closedList = []
-# Initializing the goal node object, to be used later.
-_goalNode = None
-# This variable defines if we have found the solution or not.
-_end = False
-
-# Building the goalList
-_goalList = [[]]
-row1 = []
-row2 = []
-for num in range(4):
-    row1.append(str(num + 1))
-for num in range(3):
-    row2.append(str(num + 5))
-row2.append("0")
-_goalList.append(row1)
-_goalList.append(row2)
-
-
 # --------------- Custom classes ---------------
 
 class Node:
@@ -51,6 +24,32 @@ class Node:
                     col += 1
             row += 1
 
+
+# --------------- Constants ---------------
+TOP_LEFT_CORNER = "0 0"
+TOP_RIGHT_CORNER = "0 3"
+BOTTOM_LEFT_CORNER = "1 0"
+BOTTOM_RIGHT_CORNER = "1 3"
+
+# --------------- Global Variables ---------------
+_openList = []
+_closedList = []
+# Initializing the goal node object, to be used later.
+_goalNode = Node(0, 0, 0, [[]], None)
+# This variable defines if we have found the solution or not.
+_end = False
+
+# Building the goalList
+_goalList = [[]]
+row1 = []
+row2 = []
+for num in range(4):
+    row1.append(str(num + 1))
+for num in range(3):
+    row2.append(str(num + 5))
+row2.append("0")
+_goalList.append(row1)
+_goalList.append(row2)
 
 # --------------- Functions ---------------
 
@@ -99,7 +98,8 @@ def findSolution(node):
                     _openList.remove(found)
                     _openList.append(newNode)
 
-    _openList.sort()
+    # Sorting the open list by total cost of the nodes.
+    sorted(_openList, key=lambda n: n.totalCost)
 
     # For as long as we don't have a solution, pop the first node of the open list.
     while not _end and len(_openList) != 0:
@@ -116,12 +116,13 @@ def findSolution(node):
 def findMoves(node):
     global _end
     global _goalNode
+    global _openList
+    global _closedList
 
     if _end:
         return
 
     _closedList.append(node)
-    _openList.remove(node)
 
     # Check if we are at goalState
     if goalState(node):
@@ -136,73 +137,84 @@ def findMoves(node):
 
     # Initializing Node to copy
     costOfMove = 1
-    nodeToCopy = copy.deepcopy(node)
+    nodeToCopy = copy.copy(node)
+    nodeToCopy.stateWhenAtNode = copy.deepcopy(node.stateWhenAtNode)
     nodeToCopy.totalCost += costOfMove
     nodeToCopy.cost = costOfMove
     nodeToCopy.parent = node
 
     if indexOfEmpty == TOP_LEFT_CORNER:
         # Wrapping move
-        wrappingNode = copy.deepcopy(nodeToCopy)
+        wrappingNode = copy.copy(nodeToCopy)
+        wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         wrappingNode.stateWhenAtNode[0][0] = wrappingNode.stateWhenAtNode[0][3]
         wrappingNode.stateWhenAtNode[0][3] = "0"
         wrappingNode.cost += 1
         wrappingNode.totalCost += 1
 
         # Diagonal move
-        diagonalNode = copy.deepcopy(nodeToCopy)
+        diagonalNode = copy.copy(nodeToCopy)
+        diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         diagonalNode.cost += 2
         diagonalNode.totalCost += 2
         diagonalNode.stateWhenAtNode[0][0] = diagonalNode.stateWhenAtNode[1][1]
         diagonalNode.stateWhenAtNode[1][1] = "0"
 
         # OpposedCorner move
-        opposedCorner = copy.deepcopy(nodeToCopy)
+        opposedCorner = copy.copy(nodeToCopy)
+        opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         opposedCorner.cost += 2
         opposedCorner.totalCost += 2
         opposedCorner.stateWhenAtNode[0][0] = opposedCorner.stateWhenAtNode[1][3]
         opposedCorner.stateWhenAtNode[1][3] = "0"
 
         # Normal move, one step right
-        oneStepRight = copy.deepcopy(nodeToCopy)
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepRight.stateWhenAtNode[0][0] = oneStepRight.stateWhenAtNode[0][1]
         oneStepRight.stateWhenAtNode[0][1] = "0"
 
         # Normal move, one step down
-        oneStepDown = copy.deepcopy(nodeToCopy)
+        oneStepDown = copy.copy(nodeToCopy)
+        oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepDown.stateWhenAtNode[0][0] = oneStepDown.stateWhenAtNode[1][0]
         oneStepDown.stateWhenAtNode[1][0] = "0"
 
         generated.extend((wrappingNode, diagonalNode, opposedCorner, oneStepRight, oneStepDown))
     elif indexOfEmpty == TOP_RIGHT_CORNER:
         # Wrapping move
-        wrappingNode = copy.deepcopy(nodeToCopy)
+        wrappingNode = copy.copy(nodeToCopy)
+        wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         wrappingNode.stateWhenAtNode[0][3] = wrappingNode.stateWhenAtNode[0][0]
         wrappingNode.stateWhenAtNode[0][0] = "0"
         wrappingNode.cost += 1
         wrappingNode.totalCost += 1
 
         # Diagonal move
-        diagonalNode = copy.deepcopy(nodeToCopy)
+        diagonalNode = copy.copy(nodeToCopy)
+        diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         diagonalNode.cost += 2
         diagonalNode.totalCost += 2
         diagonalNode.stateWhenAtNode[0][3] = diagonalNode.stateWhenAtNode[1][2]
         diagonalNode.stateWhenAtNode[1][2] = "0"
 
         # OpposedCorner move
-        opposedCorner = copy.deepcopy(nodeToCopy)
+        opposedCorner = copy.copy(nodeToCopy)
+        opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         opposedCorner.cost += 2
         opposedCorner.totalCost += 2
         opposedCorner.stateWhenAtNode[0][3] = opposedCorner.stateWhenAtNode[1][0]
         opposedCorner.stateWhenAtNode[1][0] = "0"
 
         # Normal move, one step left
-        oneStepLeft = copy.deepcopy(nodeToCopy)
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepLeft.stateWhenAtNode[0][3] = oneStepLeft.stateWhenAtNode[0][2]
         oneStepLeft.stateWhenAtNode[0][2] = "0"
 
         # Normal move, one step down
-        oneStepDown = copy.deepcopy(nodeToCopy)
+        oneStepDown = copy.copy(nodeToCopy)
+        oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepDown.stateWhenAtNode[0][3] = oneStepDown.stateWhenAtNode[1][3]
         oneStepDown.stateWhenAtNode[1][3] = "0"
 
@@ -210,83 +222,96 @@ def findMoves(node):
 
     elif indexOfEmpty == BOTTOM_LEFT_CORNER:
         # Wrapping move
-        wrappingNode = copy.deepcopy(nodeToCopy)
+        wrappingNode = copy.copy(nodeToCopy)
+        wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         wrappingNode.stateWhenAtNode[1][0] = wrappingNode.stateWhenAtNode[1][3]
         wrappingNode.stateWhenAtNode[1][3] = "0"
         wrappingNode.cost += 1
         wrappingNode.totalCost += 1
 
         # Diagonal move
-        diagonalNode = copy.deepcopy(nodeToCopy)
+        diagonalNode = copy.copy(nodeToCopy)
+        diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         diagonalNode.cost += 2
         diagonalNode.totalCost += 2
         diagonalNode.stateWhenAtNode[1][0] = diagonalNode.stateWhenAtNode[0][1]
         diagonalNode.stateWhenAtNode[0][1] = "0"
 
         # OpposedCorner move
-        opposedCorner = copy.deepcopy(nodeToCopy)
+        opposedCorner = copy.copy(nodeToCopy)
+        opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         opposedCorner.cost += 2
         opposedCorner.totalCost += 2
         opposedCorner.stateWhenAtNode[1][0] = opposedCorner.stateWhenAtNode[0][3]
         opposedCorner.stateWhenAtNode[0][3] = "0"
 
         # Normal move, one step right
-        oneStepRight = copy.deepcopy(nodeToCopy)
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepRight.stateWhenAtNode[1][0] = oneStepRight.stateWhenAtNode[1][1]
         oneStepRight.stateWhenAtNode[1][1] = "0"
 
         # Normal move, one step up
-        oneStepUp = copy.deepcopy(nodeToCopy)
+        oneStepUp = copy.copy(nodeToCopy)
+        oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepUp.stateWhenAtNode[1][0] = oneStepUp.stateWhenAtNode[0][0]
         oneStepUp.stateWhenAtNode[0][0] = "0"
 
         generated.extend((wrappingNode, diagonalNode, opposedCorner, oneStepRight, oneStepUp))
     elif indexOfEmpty == BOTTOM_RIGHT_CORNER:
         # Wrapping move
-        wrappingNode = copy.deepcopy(nodeToCopy)
+        wrappingNode = copy.copy(nodeToCopy)
+        wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         wrappingNode.stateWhenAtNode[1][3] = wrappingNode.stateWhenAtNode[1][0]
         wrappingNode.stateWhenAtNode[1][0] = "0"
         wrappingNode.cost += 1
         wrappingNode.totalCost += 1
 
         # Diagonal move
-        diagonalNode = copy.deepcopy(nodeToCopy)
+        diagonalNode = copy.copy(nodeToCopy)
+        diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         diagonalNode.cost += 2
         diagonalNode.totalCost += 2
         diagonalNode.stateWhenAtNode[1][3] = diagonalNode.stateWhenAtNode[0][2]
         diagonalNode.stateWhenAtNode[0][2] = "0"
 
         # OpposedCorner move
-        opposedCorner = copy.deepcopy(nodeToCopy)
+        opposedCorner = copy.copy(nodeToCopy)
+        opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         opposedCorner.cost += 2
         opposedCorner.totalCost += 2
         opposedCorner.stateWhenAtNode[1][3] = opposedCorner.stateWhenAtNode[0][0]
         opposedCorner.stateWhenAtNode[0][0] = "0"
 
         # Normal move, one step left
-        oneStepLeft = copy.deepcopy(nodeToCopy)
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepLeft.stateWhenAtNode[1][3] = oneStepLeft.stateWhenAtNode[1][2]
         oneStepLeft.stateWhenAtNode[1][2] = "0"
 
         # Normal move, one step up
-        oneStepUp = copy.deepcopy(nodeToCopy)
+        oneStepUp = copy.copy(nodeToCopy)
+        oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepUp.stateWhenAtNode[1][3] = oneStepUp.stateWhenAtNode[0][3]
         oneStepUp.stateWhenAtNode[0][3] = "0"
 
         generated.extend((wrappingNode, diagonalNode, opposedCorner, oneStepLeft, oneStepUp))
     elif indexOfEmpty == "0 1":
         # Normal move, one step left
-        oneStepLeft = copy.deepcopy(nodeToCopy)
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepLeft.stateWhenAtNode[0][1] = oneStepLeft.stateWhenAtNode[0][0]
         oneStepLeft.stateWhenAtNode[0][0] = "0"
 
         # Normal move, one step right
-        oneStepRight = copy.deepcopy(nodeToCopy)
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepRight.stateWhenAtNode[0][1] = oneStepRight.stateWhenAtNode[0][2]
         oneStepRight.stateWhenAtNode[0][2] = "0"
 
         # Normal move, one step down
-        oneStepDown = copy.deepcopy(nodeToCopy)
+        oneStepDown = copy.copy(nodeToCopy)
+        oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepDown.stateWhenAtNode[0][1] = oneStepDown.stateWhenAtNode[1][1]
         oneStepDown.stateWhenAtNode[1][1] = "0"
 
@@ -294,51 +319,60 @@ def findMoves(node):
 
     elif indexOfEmpty == "0 2":
         # Normal move, one step left
-        oneStepLeft = copy.deepcopy(nodeToCopy)
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepLeft.stateWhenAtNode[0][2] = oneStepLeft.stateWhenAtNode[0][1]
         oneStepLeft.stateWhenAtNode[0][1] = "0"
 
         # Normal move, one step right
-        oneStepRight = copy.deepcopy(nodeToCopy)
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepRight.stateWhenAtNode[0][2] = oneStepRight.stateWhenAtNode[0][3]
         oneStepRight.stateWhenAtNode[0][3] = "0"
 
         # Normal move, one step down
-        oneStepDown = copy.deepcopy(nodeToCopy)
+        oneStepDown = copy.copy(nodeToCopy)
+        oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepDown.stateWhenAtNode[0][2] = oneStepDown.stateWhenAtNode[1][2]
         oneStepDown.stateWhenAtNode[1][2] = "0"
 
         generated.extend((oneStepRight, oneStepLeft, oneStepDown))
     elif indexOfEmpty == "1 1":
         # Normal move, one step left
-        oneStepLeft = copy.deepcopy(nodeToCopy)
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepLeft.stateWhenAtNode[1][1] = oneStepLeft.stateWhenAtNode[1][0]
         oneStepLeft.stateWhenAtNode[1][0] = "0"
 
         # Normal move, one step right
-        oneStepRight = copy.deepcopy(nodeToCopy)
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepRight.stateWhenAtNode[1][1] = oneStepRight.stateWhenAtNode[1][2]
         oneStepRight.stateWhenAtNode[1][2] = "0"
 
         # Normal move, one step up
-        oneStepUp = copy.deepcopy(nodeToCopy)
+        oneStepUp = copy.copy(nodeToCopy)
+        oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepUp.stateWhenAtNode[1][1] = oneStepUp.stateWhenAtNode[0][1]
         oneStepUp.stateWhenAtNode[0][1] = "0"
 
         generated.extend((oneStepRight, oneStepLeft, oneStepUp))
     else:
         # Normal move, one step left
-        oneStepLeft = copy.deepcopy(nodeToCopy)
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepLeft.stateWhenAtNode[1][2] = oneStepLeft.stateWhenAtNode[1][1]
         oneStepLeft.stateWhenAtNode[1][1] = "0"
 
         # Normal move, one step right
-        oneStepRight = copy.deepcopy(nodeToCopy)
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepRight.stateWhenAtNode[1][2] = oneStepRight.stateWhenAtNode[1][3]
         oneStepRight.stateWhenAtNode[1][3] = "0"
 
         # Normal move, one step up
-        oneStepUp = copy.deepcopy(nodeToCopy)
+        oneStepUp = copy.copy(nodeToCopy)
+        oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         oneStepUp.stateWhenAtNode[1][2] = oneStepUp.stateWhenAtNode[0][2]
         oneStepUp.stateWhenAtNode[0][2] = "0"
 
@@ -362,3 +396,15 @@ for line in data:
 currentPuzzle = data[0]
 startNode = Node(0, 0, 0, currentPuzzle, None)
 findSolution(startNode)
+
+node = _goalNode
+print("Total cost is " + str(node.totalCost) + "\n")
+
+while node.parent is not None:
+    print("-------")
+    for row in node.stateWhenAtNode:
+        print("[ ")
+        for col in row:
+            print(col + " ")
+        print("] \n")
+
