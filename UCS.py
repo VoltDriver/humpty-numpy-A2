@@ -15,15 +15,16 @@ class Node:
         return __cmp__(self.totalCost, other.totalCost)
 
     def getEmptySpaceIndex(self):
-        row = 0
-        col = 0
+        rowNum = 0
+        colNum = 0
         for rows in self.stateWhenAtNode:
             for cols in rows:
                 if cols == '0':
-                    return str(row) + " " + str(col)
+                    return str(rowNum) + " " + str(colNum)
                 else:
-                    col += 1
-            row += 1
+                    colNum += 1
+            colNum = 0
+            rowNum += 1
 
 
 # --------------- Constants ---------------
@@ -97,38 +98,6 @@ def goalState(node):
 
 
 def findSolution(node):
-    possibleMoves = findMoves(node)
-
-    # For each of our node, check the closed list to see if it's there. If it's there, we don't want it.
-    for newNode in possibleMoves:
-        found = next((n for n in _closedList if n.stateWhenAtNode == newNode.stateWhenAtNode), None)
-        if found is None:
-            # We now check if it's in our open list. If it's there, we update the cost if we have a lower total cost.
-            # If not, we add it to the open list.
-            found = next((n for n in _openList if n.stateWhenAtNode == newNode.stateWhenAtNode), None)
-            if found is None:
-                _openList.append(newNode)
-            else:
-                if found.totalCost > newNode.totalCost:
-                    _openList.remove(found)
-                    _openList.append(newNode)
-
-    # Sorting the open list by total cost of the nodes.
-    sorted(_openList, key=lambda n: n.totalCost)
-
-    # For as long as we don't have a solution, pop the first node of the open list.
-    while not _end and len(_openList) != 0:
-        findSolution(_openList.pop(0))
-
-    # If we are here, we either have a solution or we failed to find one.
-    if _end:
-        print("Solution found.")
-        print(_goalNode)
-    else:
-        print("Failed to find a solution to the puzzle.")
-
-
-def findSolutionNonRecursive(node):
     _openList.append(node)
 
     # For as long as we don't have a solution, pop the first node of the open list.
@@ -429,6 +398,7 @@ def findMoves(node):
         if goalState(newNode):
             _end = True
             _goalNode = newNode
+            return generated
 
     return generated
 
@@ -450,15 +420,20 @@ isGoal2 = goalState(test2)
 # Finding Solution
 currentPuzzle = data[0]
 startNode = Node(0, 0, 0, currentPuzzle, None)
-findSolutionNonRecursive(startNode)
+findSolution(startNode)
 
 finalNode = _goalNode
 print("Total cost is " + str(finalNode.totalCost) + "\n")
 
-while finalNode.parent is not None:
-    print("-------")
-    for row in finalNode.stateWhenAtNode:
-        print("[ ")
-        for col in row:
-            print(col + " ")
-        print("] \n")
+if finalNode.parent is not None:
+    curNode = finalNode
+    while curNode.parent is not None:
+        print("-------")
+        line = ""
+        for row in curNode.stateWhenAtNode:
+            line += "[ "
+            for col in row:
+                line += col + " "
+            line += "] \n"
+        print(line)
+        curNode = curNode.parent
