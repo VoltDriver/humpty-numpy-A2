@@ -1,0 +1,77 @@
+class Node:
+	int cost
+	int totalCost
+	Node parent
+	int heuristic
+	list gameState
+	
+Node goalNode
+bool end
+
+
+findSolution(Node n)
+{
+	possibleMoves = findMoves(n)
+	
+	if(!end)
+		for node in possibleMoves
+			findSolution(node)
+}
+
+findMoves(Node n)
+{
+	// find where the empty space is in n's gamestate
+	indexOfEmpty = ... ... ...
+	
+	if indexOfEmpty = FirstCorner or indexOfEmpty = SecondCorner 
+	or indeXOfEmpty = ThirdCorner or indexOfEmpty = FourthCorner
+	{
+		// Finds the first of the possible new states, by doing a wrapping move or diagonal move or simple move.
+		newState = ... ... ...
+		costOfNewState = ...
+		// Generates a new node, with a new possible gameState
+		Node n2 = Node(n.cost + costOfNewState, n.totalCost + costOfNewState, n, -1, newState)
+		n2.heuristic = computeHeuristic(n2)
+		
+		// Check if n2 is Goalstate
+		if(goalState(n2)
+		{
+			goalNode = n2
+			end = true
+			return
+		}
+		
+		possibleMoves.append(n2)
+		
+		// Repeat for all the other moves with n's state.
+		... 
+		
+		... 
+		
+		...
+		
+		
+		return possibleMoves;
+	}
+	else
+	{
+		// Finds the first of the possible new states, by just doing a simple move.
+		newState = ... ... ...
+		costOfNewState = ...
+		// Generates a new node, with a new possible gameState
+		Node n2 = Node(n.cost + costOfNewState, n.totalCost + costOfNewState, n, -1, newState)
+		n2.heuristic = computeHeuristic(n2)
+		
+		possibleMoves.append(n2)
+		
+		// Repeat for all the other moves with n's state.
+		... 
+		
+		... 
+		
+		...
+		
+		return possibleMoves;
+	}
+	
+}
