@@ -1,5 +1,6 @@
 import copy
 
+
 # --------------- Custom classes ---------------
 
 class Node:
@@ -40,7 +41,7 @@ _goalNode = Node(0, 0, 0, [[]], None)
 _end = False
 
 # Building the goalList
-_goalList = [[]]
+_goalList = []
 row1 = []
 row2 = []
 for num in range(4):
@@ -50,6 +51,7 @@ for num in range(3):
 row2.append("0")
 _goalList.append(row1)
 _goalList.append(row2)
+
 
 # --------------- Functions ---------------
 
@@ -76,8 +78,21 @@ def load_input(filename):
 
 # Verifies if a node is in a goal state. If it is, returns true. If not, returns false.
 def goalState(node):
+    isSame = True
+
+    colNum = 0
+    rowNum = 0
+    for stateRow in node.stateWhenAtNode:
+        for stateCol in stateRow:
+            if stateCol != _goalList[rowNum][colNum]:
+                isSame = False
+            colNum += 1
+        rowNum += 1
+        colNum = 0
+
     if node.stateWhenAtNode == _goalList:
         return True
+
     return False
 
 
@@ -104,6 +119,38 @@ def findSolution(node):
     # For as long as we don't have a solution, pop the first node of the open list.
     while not _end and len(_openList) != 0:
         findSolution(_openList.pop(0))
+
+    # If we are here, we either have a solution or we failed to find one.
+    if _end:
+        print("Solution found.")
+        print(_goalNode)
+    else:
+        print("Failed to find a solution to the puzzle.")
+
+
+def findSolutionNonRecursive(node):
+    _openList.append(node)
+
+    # For as long as we don't have a solution, pop the first node of the open list.
+    while not _end and len(_openList) != 0:
+        possibleMoves = findMoves(_openList.pop(0))
+
+        # For each of our node, check the closed list to see if it's there. If it's there, we don't want it.
+        for newNode in possibleMoves:
+            found = next((n for n in _closedList if n.stateWhenAtNode == newNode.stateWhenAtNode), None)
+            if found is None:
+                # We now check if it's in our open list. If it's there, we update the cost if we have a lower total
+                # cost. If not, we add it to the open list.
+                found = next((n for n in _openList if n.stateWhenAtNode == newNode.stateWhenAtNode), None)
+                if found is None:
+                    _openList.append(newNode)
+                else:
+                    if found.totalCost > newNode.totalCost:
+                        _openList.remove(found)
+                        _openList.append(newNode)
+
+        # Sorting the open list by total cost of the nodes.
+        sorted(_openList, key=lambda n: n.totalCost)
 
     # If we are here, we either have a solution or we failed to find one.
     if _end:
@@ -392,19 +439,26 @@ for line in data:
     for element in line:
         print(element)
 
+# Testing goalState
+
+test1 = Node(0, 0, 0, [['1', '2', '3', '4'], ['5', '6', '7', '0']], None)
+test2 = Node(0, 0, 0, [['1', '3', '2', '4'], ['5', '6', '7', '0']], None)
+
+isGoal1 = goalState(test1)
+isGoal2 = goalState(test2)
+
 # Finding Solution
 currentPuzzle = data[0]
 startNode = Node(0, 0, 0, currentPuzzle, None)
-findSolution(startNode)
+findSolutionNonRecursive(startNode)
 
-node = _goalNode
-print("Total cost is " + str(node.totalCost) + "\n")
+finalNode = _goalNode
+print("Total cost is " + str(finalNode.totalCost) + "\n")
 
-while node.parent is not None:
+while finalNode.parent is not None:
     print("-------")
-    for row in node.stateWhenAtNode:
+    for row in finalNode.stateWhenAtNode:
         print("[ ")
         for col in row:
             print(col + " ")
         print("] \n")
-
