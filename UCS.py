@@ -1,4 +1,5 @@
 import copy
+import time
 
 
 # --------------- Custom classes ---------------
@@ -26,12 +27,22 @@ class Node:
             colNum = 0
             rowNum += 1
 
+    def toString(self):
+        line = ""
+        for row in self.stateWhenAtNode:
+            line += "[ "
+            for col in row:
+                line += col + " "
+            line += "] \n"
+        return line
+
 
 # --------------- Constants ---------------
 TOP_LEFT_CORNER = "0 0"
 TOP_RIGHT_CORNER = "0 3"
 BOTTOM_LEFT_CORNER = "1 0"
 BOTTOM_RIGHT_CORNER = "1 3"
+TIMEOUT_TIME_IN_SECONDS = 60
 
 # --------------- Global Variables ---------------
 _openList = []
@@ -40,6 +51,8 @@ _closedList = []
 _goalNode = Node(0, 0, 0, [[]], None)
 # This variable defines if we have found the solution or not.
 _end = False
+# This variable defines if there was a timeout or not. True for timeout, false for not.
+_timeout = False
 
 # Building the goalLists, one for each goal state.
 _goalList1 = []
@@ -68,8 +81,30 @@ row2.append("0")
 _goalList2.append(row1)
 _goalList2.append(row2)
 
+# Initializing start time. Will be overriden when we actually start.
+_startTime = time.time()
+
 
 # --------------- Functions ---------------
+def timeFormat(seconds):
+    minutes = seconds // 60
+    sec = seconds % 60
+    hours = minutes // 60
+    minutes = minutes % 60
+    return "{0}:{1}:{2}".format(int(hours), int(minutes), sec)
+
+
+def timeout():
+    seconds = time.time() - _startTime
+    minutes = seconds // 60
+    sec = seconds % 60
+    hours = minutes // 60
+    minutes = minutes % 60
+    if seconds > TIMEOUT_TIME_IN_SECONDS:
+        return True
+    else:
+        return False
+
 
 def load_input(filename):
     '''
@@ -94,7 +129,6 @@ def load_input(filename):
 
 # Verifies if a node is in a goal state. If it is, returns true. If not, returns false.
 def goalState(node):
-
     # Testing for the first way the node can be a goal (1,2,3,4 - 5,6,7,0)
     isSame = True
 
@@ -134,10 +168,17 @@ def goalState(node):
 
 
 def findSolution(node):
+    global _timeout
+    global _end
     _openList.append(node)
 
     # For as long as we don't have a solution, pop the first node of the open list.
     while not _end and len(_openList) != 0:
+        if timeout():
+            _timeout = True
+            _end = True
+            break
+
         possibleMoves = findMoves(_openList.pop(0))
 
         # For each of our node, check the closed list to see if it's there. If it's there, we don't want it.
@@ -158,9 +199,10 @@ def findSolution(node):
         sorted(_openList, key=lambda n: n.totalCost)
 
     # If we are here, we either have a solution or we failed to find one.
-    if _end:
+    if _end and not _timeout:
         print("Solution found.")
-        print(_goalNode)
+    elif _timeout:
+        print("Timed out. Longer than " + str(TIMEOUT_TIME_IN_SECONDS) + " seconds passed.")
     else:
         print("Failed to find a solution to the puzzle.")
 
@@ -178,8 +220,8 @@ def findMoves(node):
 
     # Check if we are at goalState
     if goalState(node):
-        goalNode = node
-        end = True
+        _goalNode = node
+        _end = True
         return
 
     # find where the empty space is in node's gamestate
@@ -460,20 +502,23 @@ isGoal4 = goalState(test4)
 # Finding Solution
 currentPuzzle = data[0]
 startNode = Node(0, 0, 0, currentPuzzle, None)
+_startTime = time.time()  # Starting the stopwatch.
 findSolution(startNode)
+
+finalTime = time.time()
 
 finalNode = _goalNode
 print("Total cost is " + str(finalNode.totalCost) + "\n")
 
+nodeStack = []
+
 if finalNode.parent is not None:
     curNode = finalNode
     while curNode.parent is not None:
-        print("-------")
-        line = ""
-        for row in curNode.stateWhenAtNode:
-            line += "[ "
-            for col in row:
-                line += col + " "
-            line += "] \n"
-        print(line)
+        nodeStack.append(curNode.toString())
         curNode = curNode.parent
+    while nodeStack:
+        print("-------")
+        print(nodeStack.pop())
+
+print("Total time taken: " + timeFormat(finalTime - _startTime))
