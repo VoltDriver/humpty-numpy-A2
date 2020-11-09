@@ -41,8 +41,8 @@ _goalNode = Node(0, 0, 0, [[]], None)
 # This variable defines if we have found the solution or not.
 _end = False
 
-# Building the goalList
-_goalList = []
+# Building the goalLists, one for each goal state.
+_goalList1 = []
 row1 = []
 row2 = []
 for num in range(4):
@@ -50,8 +50,23 @@ for num in range(4):
 for num in range(3):
     row2.append(str(num + 5))
 row2.append("0")
-_goalList.append(row1)
-_goalList.append(row2)
+_goalList1.append(row1)
+_goalList1.append(row2)
+
+_goalList2 = []
+row1 = []
+row2 = []
+count = 0
+for num in range(4):
+    row1.append(str((1 + (count * 2))))
+    count += 1
+count = 0
+for num in range(3):
+    row2.append(str((2 + (count * 2))))
+    count += 1
+row2.append("0")
+_goalList2.append(row1)
+_goalList2.append(row2)
 
 
 # --------------- Functions ---------------
@@ -79,22 +94,43 @@ def load_input(filename):
 
 # Verifies if a node is in a goal state. If it is, returns true. If not, returns false.
 def goalState(node):
+
+    # Testing for the first way the node can be a goal (1,2,3,4 - 5,6,7,0)
     isSame = True
 
     colNum = 0
     rowNum = 0
     for stateRow in node.stateWhenAtNode:
         for stateCol in stateRow:
-            if stateCol != _goalList[rowNum][colNum]:
+            if stateCol != _goalList1[rowNum][colNum]:
                 isSame = False
+                break
             colNum += 1
         rowNum += 1
         colNum = 0
+        if not isSame:
+            break
 
-    if node.stateWhenAtNode == _goalList:
-        return True
+    # If we found a goal, we return true.
+    if isSame:
+        return isSame
 
-    return False
+    # If not, we test for the second way the node can be a goal (1,3,5,7 - 2,4,6,0)
+    isSame = True
+    colNum = 0
+    rowNum = 0
+    for stateRow in node.stateWhenAtNode:
+        for stateCol in stateRow:
+            if stateCol != _goalList2[rowNum][colNum]:
+                isSame = False
+                break
+            colNum += 1
+        rowNum += 1
+        colNum = 0
+        if not isSame:
+            break
+
+    return isSame
 
 
 def findSolution(node):
@@ -411,11 +447,15 @@ for line in data:
 
 # Testing goalState
 
-test1 = Node(0, 0, 0, [['1', '2', '3', '4'], ['5', '6', '7', '0']], None)
-test2 = Node(0, 0, 0, [['1', '3', '2', '4'], ['5', '6', '7', '0']], None)
+test1 = Node(0, 0, 0, [['1', '2', '3', '4'], ['5', '6', '7', '0']], None)  # is a goal
+test2 = Node(0, 0, 0, [['1', '3', '2', '4'], ['5', '6', '7', '0']], None)  # is not a goal
+test3 = Node(0, 0, 0, [['1', '2', '6', '4'], ['5', '3', '7', '0']], None)  # is not a goal
+test4 = Node(0, 0, 0, [['1', '3', '5', '7'], ['2', '4', '6', '0']], None)  # is a goal, second way
 
 isGoal1 = goalState(test1)
 isGoal2 = goalState(test2)
+isGoal3 = goalState(test3)
+isGoal4 = goalState(test4)
 
 # Finding Solution
 currentPuzzle = data[0]
