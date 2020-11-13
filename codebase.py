@@ -1,16 +1,17 @@
 import copy
 import time
 
-
 # --------------- Custom classes ---------------
 
 class Node:
-    def __init__(self, heuristicCost, cost, totalCost, stateWhenAtNode, parent):
+    def __init__(self, functionCost, heuristicCost, cost, totalCost, stateWhenAtNode, parent, numberMoved):
+        self.functionCost = functionCost
         self.heuristicCost = heuristicCost
         self.cost = cost
         self.totalCost = totalCost
         self.stateWhenAtNode = stateWhenAtNode
         self.parent = parent
+        self.numberMoved = numberMoved
 
     def __cmp__(self, other):
         return __cmp__(self.totalCost, other.totalCost)
@@ -36,6 +37,14 @@ class Node:
             line += "] \n"
         return line
 
+    def toOneLineString(self):
+        oneLine = ""
+        for row in self.stateWhenAtNode:
+            for col in row:
+                oneLine += col + " "
+        oneLine.rstrip()
+        return oneLine
+
 
 # --------------- Constants ---------------
 TOP_LEFT_CORNER = "0 0"
@@ -48,7 +57,7 @@ TIMEOUT_TIME_IN_SECONDS = 60
 _openList = []
 _closedList = []
 # Initializing the goal node object, to be used later.
-_goalNode = Node(0, 0, 0, [[]], None)
+_goalNode = Node(0, 0, 0, 0, [[]], None, -1)
 # This variable defines if we have found the solution or not.
 _end = False
 # This variable defines if there was a timeout or not. True for timeout, false for not.
@@ -81,8 +90,11 @@ row2.append("0")
 _goalList2.append(row1)
 _goalList2.append(row2)
 
-# Initializing start time. Will be overriden when we actually start.
-_startTime = time.time()
+# Initializing start time. Will be overridden when we actually start.
+_startTime = 0
+
+# Initializing a global variable to hold all searched nodes
+_searchedNodes = []
 
 
 # --------------- Functions ---------------
@@ -96,10 +108,6 @@ def timeFormat(seconds):
 
 def timeout():
     seconds = time.time() - _startTime
-    minutes = seconds // 60
-    sec = seconds % 60
-    hours = minutes // 60
-    minutes = minutes % 60
     if seconds > TIMEOUT_TIME_IN_SECONDS:
         return True
     else:
@@ -107,14 +115,14 @@ def timeout():
 
 
 def load_input(filename):
-    '''
+    """
     Function for loading the initial puzzles, in format 2x4, from a text file.
-    '''
+    """
     file = open(filename, "r")
-    data = file.readlines()
+    dataRead = file.readlines()
 
     puzzleList = []
-    for puzzle in data:
+    for puzzle in dataRead:
         puzzle = puzzle.replace(' ', '')
         puzzle = puzzle.replace('\n', '')
         puzzleArray = [[], []]
@@ -170,6 +178,10 @@ def goalState(node):
 def findSolution(node):
     global _timeout
     global _end
+    global _searchedNodes
+    global _openList
+    global _closedList
+
     _openList.append(node)
 
     # For as long as we don't have a solution, pop the first node of the open list.
@@ -198,41 +210,7 @@ def findSolution(node):
         # Sorting the open list by total cost of the nodes.
         sorted(_openList, key=lambda n: n.totalCost)
 
-    # If we are here, we either have a solution or we failed to find one.
-    if _end and not _timeout:
-        print("Solution found.")
-    elif _timeout:
-        print("Timed out. Longer than " + str(TIMEOUT_TIME_IN_SECONDS) + " seconds passed.")
-    else:
-        print("Failed to find a solution to the puzzle.")
-        
-# Finds the solution of the puzzle using GBFS if possible with a given heuristic function
-def gbfs(node, h_func):
-    global _timeout
-    global _end
-    _openList.append(node)
-
-    # For as long as we don't have a solution, pop the first node of the open list.
-    while not _end and len(_openList) != 0:
-        if timeout():
-            _timeout = True
-            _end = True
-            break
-
-        possibleMoves = findMoves(_openList.pop(0))
-
-        # For each of our node, check the closed list to see if it's there. If it's there, we don't want it.
-        for newNode in possibleMoves:
-            found = next((n for n in _closedList if n.stateWhenAtNode == newNode.stateWhenAtNode), None)
-            if found is None:
-                # We now check if it's in our open list. If it's not there, add the node and compute its heuristic value
-                found = next((n for n in _openList if n.stateWhenAtNode == newNode.stateWhenAtNode), None)
-                if found is None:
-                    newNode.heuristicCost = h_func(newNode.stateWhenAtNode)
-                    _openList.append(newNode)
-
-        # Sorting the open list by heuristic of the nodes.
-        sorted(_openList, key=lambda n: n.heuristicCost)
+    _searchedNodes = _closedList
 
     # If we are here, we either have a solution or we failed to find one.
     if _end and not _timeout:
@@ -241,6 +219,7 @@ def gbfs(node, h_func):
         print("Timed out. Longer than " + str(TIMEOUT_TIME_IN_SECONDS) + " seconds passed.")
     else:
         print("Failed to find a solution to the puzzle.")
+
 
 def findMoves(node):
     global _end
@@ -276,6 +255,7 @@ def findMoves(node):
         # Wrapping move
         wrappingNode = copy.copy(nodeToCopy)
         wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        wrappingNode.numberMoved = wrappingNode.stateWhenAtNode[0][3]
         wrappingNode.stateWhenAtNode[0][0] = wrappingNode.stateWhenAtNode[0][3]
         wrappingNode.stateWhenAtNode[0][3] = "0"
         wrappingNode.cost += 1
@@ -286,6 +266,7 @@ def findMoves(node):
         diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         diagonalNode.cost += 2
         diagonalNode.totalCost += 2
+        diagonalNode.numberMoved = diagonalNode.stateWhenAtNode[1][1]
         diagonalNode.stateWhenAtNode[0][0] = diagonalNode.stateWhenAtNode[1][1]
         diagonalNode.stateWhenAtNode[1][1] = "0"
 
@@ -294,18 +275,21 @@ def findMoves(node):
         opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         opposedCorner.cost += 2
         opposedCorner.totalCost += 2
+        opposedCorner.numberMoved = opposedCorner.stateWhenAtNode[1][3]
         opposedCorner.stateWhenAtNode[0][0] = opposedCorner.stateWhenAtNode[1][3]
         opposedCorner.stateWhenAtNode[1][3] = "0"
 
         # Normal move, one step right
         oneStepRight = copy.copy(nodeToCopy)
         oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[0][1]
         oneStepRight.stateWhenAtNode[0][0] = oneStepRight.stateWhenAtNode[0][1]
         oneStepRight.stateWhenAtNode[0][1] = "0"
 
         # Normal move, one step down
         oneStepDown = copy.copy(nodeToCopy)
         oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepDown.numberMoved = oneStepDown.stateWhenAtNode[1][0]
         oneStepDown.stateWhenAtNode[0][0] = oneStepDown.stateWhenAtNode[1][0]
         oneStepDown.stateWhenAtNode[1][0] = "0"
 
@@ -314,6 +298,7 @@ def findMoves(node):
         # Wrapping move
         wrappingNode = copy.copy(nodeToCopy)
         wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        wrappingNode.numberMoved = wrappingNode.stateWhenAtNode[0][0]
         wrappingNode.stateWhenAtNode[0][3] = wrappingNode.stateWhenAtNode[0][0]
         wrappingNode.stateWhenAtNode[0][0] = "0"
         wrappingNode.cost += 1
@@ -324,6 +309,7 @@ def findMoves(node):
         diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         diagonalNode.cost += 2
         diagonalNode.totalCost += 2
+        diagonalNode.numberMoved = diagonalNode.stateWhenAtNode[1][2]
         diagonalNode.stateWhenAtNode[0][3] = diagonalNode.stateWhenAtNode[1][2]
         diagonalNode.stateWhenAtNode[1][2] = "0"
 
@@ -332,12 +318,14 @@ def findMoves(node):
         opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         opposedCorner.cost += 2
         opposedCorner.totalCost += 2
+        opposedCorner.numberMoved = opposedCorner.stateWhenAtNode[1][0]
         opposedCorner.stateWhenAtNode[0][3] = opposedCorner.stateWhenAtNode[1][0]
         opposedCorner.stateWhenAtNode[1][0] = "0"
 
         # Normal move, one step left
         oneStepLeft = copy.copy(nodeToCopy)
         oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[0][2]
         oneStepLeft.stateWhenAtNode[0][3] = oneStepLeft.stateWhenAtNode[0][2]
         oneStepLeft.stateWhenAtNode[0][2] = "0"
 
@@ -353,6 +341,7 @@ def findMoves(node):
         # Wrapping move
         wrappingNode = copy.copy(nodeToCopy)
         wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        wrappingNode.numberMoved = wrappingNode.stateWhenAtNode[1][3]
         wrappingNode.stateWhenAtNode[1][0] = wrappingNode.stateWhenAtNode[1][3]
         wrappingNode.stateWhenAtNode[1][3] = "0"
         wrappingNode.cost += 1
@@ -363,6 +352,7 @@ def findMoves(node):
         diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         diagonalNode.cost += 2
         diagonalNode.totalCost += 2
+        diagonalNode.numberMoved = diagonalNode.stateWhenAtNode[0][1]
         diagonalNode.stateWhenAtNode[1][0] = diagonalNode.stateWhenAtNode[0][1]
         diagonalNode.stateWhenAtNode[0][1] = "0"
 
@@ -371,18 +361,21 @@ def findMoves(node):
         opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         opposedCorner.cost += 2
         opposedCorner.totalCost += 2
+        opposedCorner.numberMoved = opposedCorner.stateWhenAtNode[0][3]
         opposedCorner.stateWhenAtNode[1][0] = opposedCorner.stateWhenAtNode[0][3]
         opposedCorner.stateWhenAtNode[0][3] = "0"
 
         # Normal move, one step right
         oneStepRight = copy.copy(nodeToCopy)
         oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[1][1]
         oneStepRight.stateWhenAtNode[1][0] = oneStepRight.stateWhenAtNode[1][1]
         oneStepRight.stateWhenAtNode[1][1] = "0"
 
         # Normal move, one step up
         oneStepUp = copy.copy(nodeToCopy)
         oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepUp.numberMoved = oneStepUp.stateWhenAtNode[0][0]
         oneStepUp.stateWhenAtNode[1][0] = oneStepUp.stateWhenAtNode[0][0]
         oneStepUp.stateWhenAtNode[0][0] = "0"
 
@@ -391,6 +384,7 @@ def findMoves(node):
         # Wrapping move
         wrappingNode = copy.copy(nodeToCopy)
         wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        wrappingNode.numberMoved = wrappingNode.stateWhenAtNode[1][0]
         wrappingNode.stateWhenAtNode[1][3] = wrappingNode.stateWhenAtNode[1][0]
         wrappingNode.stateWhenAtNode[1][0] = "0"
         wrappingNode.cost += 1
@@ -401,6 +395,7 @@ def findMoves(node):
         diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         diagonalNode.cost += 2
         diagonalNode.totalCost += 2
+        diagonalNode.numberMoved = diagonalNode.stateWhenAtNode[0][2]
         diagonalNode.stateWhenAtNode[1][3] = diagonalNode.stateWhenAtNode[0][2]
         diagonalNode.stateWhenAtNode[0][2] = "0"
 
@@ -409,18 +404,21 @@ def findMoves(node):
         opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
         opposedCorner.cost += 2
         opposedCorner.totalCost += 2
+        opposedCorner.numberMoved = opposedCorner.stateWhenAtNode[0][0]
         opposedCorner.stateWhenAtNode[1][3] = opposedCorner.stateWhenAtNode[0][0]
         opposedCorner.stateWhenAtNode[0][0] = "0"
 
         # Normal move, one step left
         oneStepLeft = copy.copy(nodeToCopy)
         oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[1][2]
         oneStepLeft.stateWhenAtNode[1][3] = oneStepLeft.stateWhenAtNode[1][2]
         oneStepLeft.stateWhenAtNode[1][2] = "0"
 
         # Normal move, one step up
         oneStepUp = copy.copy(nodeToCopy)
         oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepUp.numberMoved = oneStepUp.stateWhenAtNode[0][3]
         oneStepUp.stateWhenAtNode[1][3] = oneStepUp.stateWhenAtNode[0][3]
         oneStepUp.stateWhenAtNode[0][3] = "0"
 
@@ -429,18 +427,21 @@ def findMoves(node):
         # Normal move, one step left
         oneStepLeft = copy.copy(nodeToCopy)
         oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[0][0]
         oneStepLeft.stateWhenAtNode[0][1] = oneStepLeft.stateWhenAtNode[0][0]
         oneStepLeft.stateWhenAtNode[0][0] = "0"
 
         # Normal move, one step right
         oneStepRight = copy.copy(nodeToCopy)
         oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[0][2]
         oneStepRight.stateWhenAtNode[0][1] = oneStepRight.stateWhenAtNode[0][2]
         oneStepRight.stateWhenAtNode[0][2] = "0"
 
         # Normal move, one step down
         oneStepDown = copy.copy(nodeToCopy)
         oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepDown.numberMoved = oneStepDown.stateWhenAtNode[1][1]
         oneStepDown.stateWhenAtNode[0][1] = oneStepDown.stateWhenAtNode[1][1]
         oneStepDown.stateWhenAtNode[1][1] = "0"
 
@@ -450,18 +451,21 @@ def findMoves(node):
         # Normal move, one step left
         oneStepLeft = copy.copy(nodeToCopy)
         oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[0][1]
         oneStepLeft.stateWhenAtNode[0][2] = oneStepLeft.stateWhenAtNode[0][1]
         oneStepLeft.stateWhenAtNode[0][1] = "0"
 
         # Normal move, one step right
         oneStepRight = copy.copy(nodeToCopy)
         oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[0][3]
         oneStepRight.stateWhenAtNode[0][2] = oneStepRight.stateWhenAtNode[0][3]
         oneStepRight.stateWhenAtNode[0][3] = "0"
 
         # Normal move, one step down
         oneStepDown = copy.copy(nodeToCopy)
         oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepDown.numberMoved = oneStepDown.stateWhenAtNode[1][2]
         oneStepDown.stateWhenAtNode[0][2] = oneStepDown.stateWhenAtNode[1][2]
         oneStepDown.stateWhenAtNode[1][2] = "0"
 
@@ -470,18 +474,21 @@ def findMoves(node):
         # Normal move, one step left
         oneStepLeft = copy.copy(nodeToCopy)
         oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[1][0]
         oneStepLeft.stateWhenAtNode[1][1] = oneStepLeft.stateWhenAtNode[1][0]
         oneStepLeft.stateWhenAtNode[1][0] = "0"
 
         # Normal move, one step right
         oneStepRight = copy.copy(nodeToCopy)
         oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[1][2]
         oneStepRight.stateWhenAtNode[1][1] = oneStepRight.stateWhenAtNode[1][2]
         oneStepRight.stateWhenAtNode[1][2] = "0"
 
         # Normal move, one step up
         oneStepUp = copy.copy(nodeToCopy)
         oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepUp.numberMoved = oneStepUp.stateWhenAtNode[0][1]
         oneStepUp.stateWhenAtNode[1][1] = oneStepUp.stateWhenAtNode[0][1]
         oneStepUp.stateWhenAtNode[0][1] = "0"
 
@@ -490,18 +497,21 @@ def findMoves(node):
         # Normal move, one step left
         oneStepLeft = copy.copy(nodeToCopy)
         oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[1][1]
         oneStepLeft.stateWhenAtNode[1][2] = oneStepLeft.stateWhenAtNode[1][1]
         oneStepLeft.stateWhenAtNode[1][1] = "0"
 
         # Normal move, one step right
         oneStepRight = copy.copy(nodeToCopy)
         oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[1][3]
         oneStepRight.stateWhenAtNode[1][2] = oneStepRight.stateWhenAtNode[1][3]
         oneStepRight.stateWhenAtNode[1][3] = "0"
 
         # Normal move, one step up
         oneStepUp = copy.copy(nodeToCopy)
         oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepUp.numberMoved = oneStepUp.stateWhenAtNode[0][2]
         oneStepUp.stateWhenAtNode[1][2] = oneStepUp.stateWhenAtNode[0][2]
         oneStepUp.stateWhenAtNode[0][2] = "0"
 
@@ -515,14 +525,143 @@ def findMoves(node):
 
     return generated
 
+
+def createOutputFile(filePrefix, initialPuzzle, solutionNode, executeTime, searchPath):
+    """
+    Function for creating an output file for a puzzle. Creates a search file and a solution file.
+    Takes as parameter the number of the puzzle and the name of the search, in the following format:
+    puzzleNumber_searchName
+    as filePrefix.
+    """
+    # Open solution file
+    output = open('A2_Output/' + filePrefix + '_solution.txt', 'w')
+
+    # Writing initial line of the solution file
+    toWrite = "0 0 "
+    for row in initialPuzzle:
+        for col in row:
+            toWrite += col + " "
+    toWrite.rstrip()
+
+    output.write(toWrite + '\n')
+
+    # Checking if there is a solution
+    if solutionNode.parent is not None:
+        # ReOrdering the moves, so that the first move is first
+        stack = []
+        current = solutionNode
+        while current.parent is not None:
+            stack.append(current)
+            current = current.parent
+        while stack:
+            # Writing the solution, node by node
+            current = stack.pop()
+            output.write(current.numberMoved + " " + str(current.cost) + " " + current.toOneLineString().rstrip() + '\n')
+    else:
+        output.write("no solution" + "\n")
+
+    output.write(str(solutionNode.totalCost) + " " + str(executeTime % 60))
+
+    # Close output file
+    output.close()
+
+    # Open search file
+    output = open('A2_Output/' + filePrefix + '_search.txt', 'w')
+
+    for nodes in searchPath:
+        output.write(
+            "f(n) = " + str(nodes.functionCost) + "g(n) = " + str(nodes.totalCost) + ",h(n) = " + str(nodes.heuristicCost) + ", state = " + nodes.toOneLineString().rstrip() + "\n")
+
+    # Close output file
+    output.close()
+
+
+def resetGlobals():
+    """
+    Resets all the global variables used in the program, to prepare for the re-execution of the algorithm.
+    """
+    global _openList
+    global _closedList
+    global _goalNode
+    global _end
+    global _timeout
+    global _startTime
+    global _searchedNodes
+
+    _openList = []
+    _closedList = []
+    _goalNode = Node(0, 0, 0, 0, [[]], None, -1)
+    _end = False
+    _timeout = False
+    _startTime = 0
+    _searchedNodes = []
+
+
+# Finds the solution of the puzzle using GBFS if possible with a given heuristic function
+def gbfs(node, h_func):
+    global _timeout
+    global _end
+    global _searchedNodes
+    global _openList
+    global _closedList
+    
+    _openList.append(node)
+
+    # For as long as we don't have a solution, pop the first node of the open list.
+    while not _end and len(_openList) != 0:
+        if timeout():
+            _timeout = True
+            _end = True
+            break
+
+        possibleMoves = findMoves(_openList.pop(0))
+
+        # For each of our node, check the closed list to see if it's there. If it's there, we don't want it.
+        for newNode in possibleMoves:
+            found = next((n for n in _closedList if n.stateWhenAtNode == newNode.stateWhenAtNode), None)
+            if found is None:
+                # We now check if it's in our open list. If it's not there, add the node and compute its heuristic value
+                found = next((n for n in _openList if n.stateWhenAtNode == newNode.stateWhenAtNode), None)
+                if found is None:
+                    newNode.heuristicCost = h_func(newNode.stateWhenAtNode)
+                    _openList.append(newNode)
+
+        # Sorting the open list by heuristic of the nodes.
+        sorted(_openList, key=lambda n: n.heuristicCost)
+
+    _searchedNodes = _closedList
+    
+    # If we are here, we either have a solution or we failed to find one.
+    if _end and not _timeout:
+        print("Solution found.")
+    elif _timeout:
+        print("Timed out. Longer than " + str(TIMEOUT_TIME_IN_SECONDS) + " seconds passed.")
+    else:
+        print("Failed to find a solution to the puzzle.")
+
 # h0 given in assignment insructions
 def h0(nodeState):
     if (nodeState[len(nodeState)-1][len(nodeState[0])-1] == '0'):
         return 0
     else:
         return 1
+
+# Heuristic function 1: Manhattan distance from passed node state. 
+def manhattanDistance(nodeState):
+    goals = [_goalList1, _goalList2]
+    h = [0] * len(goals)
     
-# Heuristic function 1: Diagonal distance (cost of moving horizontally/vertically is 1, diagonal is 3) from passed node state
+    for i in range(len(h)):
+        for j in range(len(goals[i])):
+            for k in range(len(goals[i][j])):
+                if (nodeState[j][k] != '0'):
+                    r, c = index_2d(goals[i], nodeState[j][k])
+                    abs(j - r)
+                    h[i] += abs(j - r) + abs(k - c)
+                    
+    return min(h)
+  
+# Heuristic function 2: Diagonal distance (cost of moving horizontally/vertically is 1, diagonal is 3) from passed node state
 def diagonalDistance(nodeState, D=1, D2=3):
     goals = [_goalList1, _goalList2]
     h = [0] * len(goals)
@@ -536,21 +675,6 @@ def diagonalDistance(nodeState, D=1, D2=3):
                     dy = abs(k - c)
                     h[i] += D * (dx + dy) + (D2 - 2 * D) * min(dx, dy)
     
-    return min(h)
-
-# Heuristic function 2: Manhattan distance from passed node state. 
-def manhattanDistance(nodeState):
-    goals = [_goalList1, _goalList2]
-    h = [0] * len(goals)
-    
-    for i in range(len(h)):
-        for j in range(len(goals[i])):
-            for k in range(len(goals[i][j])):
-                if (nodeState[j][k] != '0'):
-                    r, c = index_2d(goals[i], nodeState[j][k])
-                    abs(j - r)
-                    h[i] += abs(j - r) + abs(k - c)
-                    
     return min(h)
 
 def hamming(nodeState):
@@ -570,3 +694,9 @@ def index_2d(someList, value):
     for i, x in enumerate(someList):
         if value in x:
             return (i, x.index(value))
+ 
+# Set the starting time of the algorithm       
+def startTimer():
+    global _startTime
+    _startTime = time.time()
+    return _startTime

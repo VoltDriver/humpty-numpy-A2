@@ -1,43 +1,57 @@
 from codebase import *
-from codebase import _startTime
 
 # ------------------------------
 # Execute Greedy/Best-First Search
 # Load puzzles
 data = load_input("A2_Input/samplePuzzles.txt")
 
-# Finding Solution
-currentPuzzle = data[0]
-startNode = Node(diagonalDistance(currentPuzzle), 0, 0, currentPuzzle, None)
-print(startNode.toString())
-_startTime = time.time()  # Starting the stopwatch.
-#findSolution(startNode)
-#gbfs(startNode, h0)
-#gbfs(startNode, manhattanDistance)
-gbfs(startNode, diagonalDistance)
+gbfs_h = {
+    manhattanDistance : "_gbfs-h1",
+    diagonalDistance : "_gbfs-h2"
+}
 
-finalTime = time.time()
+for heuristic in gbfs_h:
 
-from codebase import _goalNode, _closedList
+    counter = 0
 
-finalNode = _goalNode
-print("Total cost is " + str(finalNode.totalCost) + "\n")
-print(len(_closedList))
+    # Finding Solutions
+    for currentPuzzle in data:
 
-nodeStack = []
+        # initializing the start of the algorithm
+        startNode = Node(0, heuristic(currentPuzzle), 0, 0, currentPuzzle, None, -1)
+        startTime = startTimer()  # Starting the stopwatch.
 
-if finalNode.parent is not None:
-    curNode = finalNode
-    while curNode.parent is not None:
-        #nodeStack.append(curNode.toString())
-        nodeStack.append(curNode)
-        curNode = curNode.parent
-    while nodeStack:
-        print("-------")
-        #print(nodeStack.pop())
-        node = nodeStack.pop()
-        print('heuristic = ' + str(node.heuristicCost))
-        print(node.toString())
+        # Running the algorithm
+        #findSolution(startNode)
+        gbfs(startNode, heuristic)
 
-print("Total time taken: " + timeFormat(finalTime - _startTime))
+        # Stopping the stopwatch
+        finalTime = time.time()
+
+        from codebase import _goalNode, _searchedNodes
+        finalNode = _goalNode
+        print("Total cost is " + str(finalNode.totalCost) + "\n")
+
+        nodeStack = []
+
+        # traversing the nodes, to print them  to console.
+        if finalNode.parent is not None:
+            curNode = finalNode
+            while curNode.parent is not None:
+                nodeStack.append(curNode.toString())
+                curNode = curNode.parent
+            while nodeStack:
+                print("-------")
+                print(nodeStack.pop())
+
+        print("Total time taken: " + timeFormat(finalTime - startTime))
+
+        # Creating the output files
+        createOutputFile(str(counter) + gbfs_h[heuristic], currentPuzzle, finalNode, finalTime - startTime, _searchedNodes)
+
+        # Resetting global variables, to prepare for the next puzzle.
+        resetGlobals()
+
+        counter += 1
+
 
