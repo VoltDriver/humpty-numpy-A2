@@ -5,11 +5,13 @@ from codebase import *
 # Load puzzles
 data = load_input("A2_Input/samplePuzzles.txt")
 
+# Declare a dictionary of heuristic functions and their string component for output files
 gbfs_h = {
-    manhattanDistance : "_gbfs-h1",
-    diagonalDistance : "_gbfs-h2"
+    hammingDistance : "_gbfs-h1", # Hamming Distance
+    diagonalDistance : "_gbfs-h2", # Diagonal distance (D=1, D2=3)
 }
 
+# Loop through heuristic functions
 for heuristic in gbfs_h:
 
     counter = 0

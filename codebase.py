@@ -208,7 +208,7 @@ def findSolution(node):
                         _openList.append(newNode)
 
         # Sorting the open list by total cost of the nodes.
-        sorted(_openList, key=lambda n: n.totalCost)
+        _openList = sorted(_openList, key=lambda n: n.totalCost)
 
     _searchedNodes = _closedList
 
@@ -627,7 +627,7 @@ def gbfs(node, h_func):
                     _openList.append(newNode)
 
         # Sorting the open list by heuristic of the nodes.
-        sorted(_openList, key=lambda n: n.heuristicCost)
+        _openList = sorted(_openList, key=lambda n: n.heuristicCost)
 
     _searchedNodes = _closedList
     
@@ -645,8 +645,7 @@ def h0(nodeState):
         return 0
     else:
         return 1
-
-# Heuristic function 1: Manhattan distance from passed node state. 
+ 
 def manhattanDistance(nodeState):
     goals = [_goalList1, _goalList2]
     h = [0] * len(goals)
@@ -661,7 +660,7 @@ def manhattanDistance(nodeState):
                     
     return min(h)
   
-# Heuristic function 2: Diagonal distance (cost of moving horizontally/vertically is 1, diagonal is 3) from passed node state
+# Heuristic function 2: minimum Diagonal distance (cost of moving horizontally/vertically is 1, diagonal is 3) from passed node state
 def diagonalDistance(nodeState, D=1, D2=3):
     goals = [_goalList1, _goalList2]
     h = [0] * len(goals)
@@ -677,7 +676,8 @@ def diagonalDistance(nodeState, D=1, D2=3):
     
     return min(h)
 
-def hamming(nodeState):
+# Heuristic function 1: minimum Hamming distance from passed node
+def hammingDistance(nodeState):
     goals = [_goalList1, _goalList2]
     h = [0] * len(goals)
     
