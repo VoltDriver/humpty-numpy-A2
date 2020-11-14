@@ -209,7 +209,7 @@ def findSolution(node):
                         _openList.append(newNode)
 
         # Sorting the open list by total cost of the nodes.
-        sorted(_openList, key=lambda n: n.totalCost)
+        _openList = sorted(_openList, key=lambda n: n.totalCost)
 
     _searchedNodes = _closedList
 
