@@ -26,6 +26,8 @@ solvers = {
     'A* Diagonal Distance' : (a_star, diagonalDistance)
 }
 
+output = open('A2_Output/RandomPuzzleStats.txt', 'w')
+
 # Loop over solvers, and within loop over the puzzles
 for solver in solvers:
     # Initialize statistics
@@ -76,7 +78,6 @@ for solver in solvers:
         resetGlobals()
         
     # Calculate averages 
-    # TODO debate whether we agregate for all puzzle (even if it doesn't make sense to include the ones that were not solved) or keep the relevenat ones only (solved)
     avg_len_solution = 0
     avg_cost = 0
     avg_len_search = total_len_search / num_rand_puzzles
@@ -86,7 +87,6 @@ for solver in solvers:
         avg_cost = total_cost / (num_rand_puzzles - total_no_solution)
 
     # Write in an output file the stats so they can be noted in slides
-    output = open('A2_Output/RandomPuzzleStats.txt', 'w')
     output.write(solver + '\n')
     output.write('Total solution path length: ' + str(total_len_solution) + '\n')
     output.write('Average solution path length: ' + str(avg_len_solution) + '\n')
@@ -98,4 +98,5 @@ for solver in solvers:
     output.write('Total execution time: ' + str(total_execution_time) + ' sec.\n')
     output.write('Average execution time: ' + str(avg_execution_time) + ' sec.\n')
     output.write('--------------------------------\n\n')
-    output.close()
+
+output.close()
