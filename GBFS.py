@@ -21,12 +21,12 @@ for heuristic in gbfs_h:
 
         # initializing the start of the algorithm
         startNode = Node(0, heuristic(currentPuzzle), 0, 0, currentPuzzle, None, -1)
+        _goalList1, _goalList2 = goalList(len(currentPuzzle[0]), len(currentPuzzle))
         startTime = startTimer()  # Starting the stopwatch.
 
         # Running the algorithm
         #findSolution(startNode)
-        gbfs(startNode, heuristic)
-
+        gbfs(startNode, _goalList1, _goalList2, heuristic)
         # Stopping the stopwatch
         finalTime = time.time()
 
@@ -42,11 +42,12 @@ for heuristic in gbfs_h:
             while curNode.parent is not None:
                 nodeStack.append(curNode.toString())
                 curNode = curNode.parent
-            while nodeStack:
-                print("-------")
-                print(nodeStack.pop())
+            #while nodeStack:
+            #    print("-------")
+            #    print(nodeStack.pop())
 
-        print("Total time taken: " + timeFormat(finalTime - startTime))
+        #print("Total time taken: " + timeFormat(finalTime - startTime))
+        print("Total time taken: " + str(finalTime - startTime))
 
         # Creating the output files
         createOutputFile(str(counter) + gbfs_h[heuristic], currentPuzzle, finalNode, finalTime - startTime, _searchedNodes)
