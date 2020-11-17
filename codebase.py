@@ -50,7 +50,7 @@ class Node:
 
 
 # --------------- Constants ---------------
-TIMEOUT_TIME_IN_SECONDS = 60
+TIMEOUT_TIME_IN_SECONDS = 900
 
 # --------------- Global Variables ---------------
 _openList = []
@@ -90,11 +90,13 @@ def goalList(length, width):
     _goalList1 = []
     for row in range(width):
         _goalList1.append([])
-        for num in range(1,length):
-            _goalList1[row].append(str(num +row*length))
-        if (row == 0):
-            _goalList1[row].append(str(length))
-    _goalList1[width-1].append("0")
+        for num in range(1,length+1):
+            if (row == width-1 and num == length):
+                _goalList1[row].append('0')
+            else:
+                _goalList1[row].append(str(num + row * length))
+
+    #_goalList1[width-1].append("0")
 
     _goalList2 = []
     for row in range(width):
@@ -172,6 +174,14 @@ def goalState(node, _goalList1, _goalList2):
 
     return isSame
 
+def tileNames(row, column, length, width):
+    a = np.arange(1,length*width+1)
+    a = a.reshape(width, length)
+    for i in range(len(a[0])):
+        for k in range(len(a)):
+            if k == row and i == column:
+                return a[k][i]
+
 def findMoves(node,puzzle, _goalList1, _goalList2):
     global _end
     global _goalNode
@@ -187,7 +197,7 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
     if goalState(node, _goalList1, _goalList2):
         _goalNode = node
         _end = True
-        return
+        return [node]
 
     # find where the empty space is in node's gamestate
     indexOfEmpty = node.getEmptySpaceIndex()
@@ -219,6 +229,9 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
             oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]+1]
             oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] + 1] = "0"
 
+            wrappingNode.numberMoved = tileNames(indexOfEmpty[0], len(puzzle)-1, len(puzzle[0]), len(puzzle))
+            oneStepRight.numberMoved = tileNames(indexOfEmpty[0], indexOfEmpty[1]+1, len(puzzle[0]), len(puzzle))
+
             wrappingNode.initialized = True
             oneStepRight.initialized = True
 
@@ -229,6 +242,9 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
             #0 goes left normal move
             oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]-1]
             oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]-1] = "0"
+
+            wrappingNode.numberMoved = tileNames(indexOfEmpty[0], 0, len(puzzle[0]), len(puzzle))
+            oneStepLeft.numberMoved = tileNames(indexOfEmpty[0], indexOfEmpty[1]-1, len(puzzle[0]), len(puzzle))
 
             wrappingNode.initialized = True
             oneStepLeft.initialized = True
@@ -244,6 +260,9 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
         oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] + 1]
         oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] + 1] = "0"
 
+        oneStepLeft.numberMoved = tileNames(indexOfEmpty[0], indexOfEmpty[1]-1, len(puzzle[0]), len(puzzle))
+        oneStepRight.numberMoved = tileNames(indexOfEmpty[0], indexOfEmpty[1]+1, len(puzzle[0]), len(puzzle))
+
         oneStepLeft.initialized = True
         oneStepRight.initialized = True
 
@@ -257,76 +276,47 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
     diagonalNodeLeftUp = copy.copy(nodeToCopy)
     diagonalNodeLeftUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
 
-    if (indexOfEmpty[0] != 0 and indexOfEmpty[0] != (len(puzzle)-1)):
-        if (indexOfEmpty[1] != 0 and indexOfEmpty[1] != (len(puzzle[0])-1)):
-            #missing left up and right down
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]+1]
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]+1] = "0"
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]+1]
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]+1] = "0"
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]-1]
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]-1] ="0"
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] - 1]
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]-1] = "0"
-        elif (indexOfEmpty[1] == 0):
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]+1]
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]+1] = "0"
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]+1]
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] + 1] = "0"
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][len(puzzle[0])-1]
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0] + 1][len(puzzle[0]) - 1] = "0"
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0] - 1][len(puzzle[0]) - 1]
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]-1][len(puzzle[0]) - 1] = "0"
-        elif (indexOfEmpty[1] == (len(puzzle)-1)):
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][0]
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][0] = "0"
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][0]
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0] - 1][0] = "0"
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]-1]
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1] - 1] = "0"
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1]-1]
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1]-1] = "0"
-
-        diagonalNodeRightUp.initialized = True
-        diagonalNodeRightDown.initialized = True
-        diagonalNodeLeftUp.initialized = True
-        diagonalNodeLeftDown.initialized = True
-
-    elif (indexOfEmpty[0] == 0):
-        if (indexOfEmpty[1] != 0 and indexOfEmpty[1] != (len(puzzle[0])-1)):
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]+1]
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]+1] = "0"
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]-1]
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1] - 1] = "0"
-        elif (indexOfEmpty[1] == 0):
+    if (indexOfEmpty[0] == 0):
+        if (indexOfEmpty[1] == 0):
             diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]+1]
             diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1] + 1] = "0"
+            diagonalNodeRightDown.numberMoved = tileNames(indexOfEmpty[0]+1, indexOfEmpty[1]+1, len(puzzle[0]), len(puzzle))
+
             diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][len(puzzle[0])-1]
             diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][len(puzzle[0])-1] = "0"
+            diagonalNodeLeftDown.numberMoved = tileNames(indexOfEmpty[0], len(puzzle[0])-1, len(puzzle[0]), len(puzzle))
+
         elif (indexOfEmpty[1] == (len(puzzle)-1)):
             diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][0]
             diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][0] = "0"
+            diagonalNodeRightDown.numberMoved = tileNames(indexOfEmpty[0]+1, 0, len(puzzle[0]), len(puzzle))
+
             diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]-1]
             diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1] - 1] = "0"
+            diagonalNodeLeftDown.numberMoved = tileNames(indexOfEmpty[0]+1, indexOfEmpty[1]-1, len(puzzle[0]), len(puzzle))
+
         diagonalNodeRightDown.initialized = True
         diagonalNodeLeftDown.initialized = True
 
     elif (indexOfEmpty[0] == (len(puzzle)-1)):
-        if (indexOfEmpty[1] != 0 and indexOfEmpty[1] != (len(puzzle[0])-1)):
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]-1]
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]-1] = "0"
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]+1]
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] + 1] = "0"
-        elif (indexOfEmpty[1] == 0):
+        if (indexOfEmpty[1] == 0):
             diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]-1][len(puzzle[0])-1]
             diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][len(puzzle[0])-1] = "0"
+            diagonalNodeLeftUp.numberMoved = tileNames(indexOfEmpty[0], len(puzzle[0])-1, len(puzzle[0]), len(puzzle))
+
             diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]+1]
             diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] + 1] = "0"
+            diagonalNodeRightUp.numberMoved = tileNames(indexOfEmpty[0]-1, indexOfEmpty[1]+1, len(puzzle[0]), len(puzzle))
+
         elif (indexOfEmpty[1] == (len(puzzle[0])-1)):
             diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][0]
             diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][0] = "0"
+            diagonalNodeRightUp.numberMoved = tileNames(indexOfEmpty[0]-1, 0, len(puzzle[0]), len(puzzle))
+
             diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]-1]
             diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] - 1] = "0"
+            diagonalNodeLeftUp.numberMoved = tileNames(indexOfEmpty[0]-1, indexOfEmpty[1]-1, len(puzzle[0]), len(puzzle))
+
         diagonalNodeLeftUp.initialized = True
         diagonalNodeRightUp.initialized = True
 
@@ -349,20 +339,26 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
         #one step down for 0
         oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]]
         oneStepDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]] = "0"
+        oneStepDown.numberMoved = tileNames(indexOfEmpty[0]+1, indexOfEmpty[1], len(puzzle[0]), len(puzzle))
         oneStepDown.initialized = True
 
     elif (indexOfEmpty[0] == (len(puzzle)-1)):
         #one step up for 0
         oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]]
         oneStepUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]] = "0"
+        oneStepUp.numberMoved = tileNames(indexOfEmpty[0]-1, indexOfEmpty[1], len(puzzle[0]), len(puzzle))
         oneStepUp.initialized = True
     else:
         # one step down for 0 - normal move
         oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1]]
         oneStepDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1]] = "0"
+        oneStepDown.numberMoved = tileNames(indexOfEmpty[0]+1, indexOfEmpty[1], len(puzzle[0]), len(puzzle))
+
         # one step up for 0 - normal move
         oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1]]
         oneStepUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1]] = "0"
+        oneStepUp.numberMoved = tileNames(indexOfEmpty[0]-1, indexOfEmpty[1], len(puzzle[0]), len(puzzle))
+
         oneStepDown.initialized = True
         oneStepUp.initialized = True
 
@@ -371,7 +367,6 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
     for k in range(3):
         for i in generated:
             if not i.initialized:
-                #print('1')
                 generated.remove(i)
 
 
@@ -475,8 +470,8 @@ def createOutputFile(filePrefix, initialPuzzle, solutionNode, executeTime, searc
 
     for nodes in searchPath:
         output.write(
-            "f(n) = " + str(nodes.functionCost) + "g(n) = " + str(nodes.totalCost) + ",h(n) = " + str(
-                nodes.heuristicCost) + ", state = " + nodes.toOneLineString().rstrip() + "\n")
+            str(nodes.functionCost) + " " + str(nodes.totalCost) + " " + str(
+                nodes.heuristicCost) + " " + nodes.toOneLineString().rstrip() + "\n")
 
     # Close output file
     output.close()
@@ -531,6 +526,7 @@ def gbfs(node, _goalList1, _goalList2, h_func):
                 found = next((n for n in _openList if n.stateWhenAtNode == newNode.stateWhenAtNode), None)
                 if found is None:
                     newNode.heuristicCost = h_func(newNode.stateWhenAtNode)
+                    #newNode.functionCost = newNode.totalCost + newNode.heuristicCost
                     _openList.append(newNode)
 
         # Sorting the open list by heuristic of the nodes.
@@ -558,13 +554,13 @@ def a_star(node, _goalList1, _goalList2, h_func):
     # For as long as we don't have a solution, pop the first node of the open list.
     i=0
     while not _end and len(_openList) != 0:
-        #if timeout():
-        #    _timeout = True
-        #    _end = True
-        #    break
+        if timeout():
+            _timeout = True
+            _end = True
+            break
 
         parentNode = _openList.pop(0)
-        print(parentNode.stateWhenAtNode)
+        #print(parentNode.stateWhenAtNode)
         #print(parentNode.totalCost)
         possibleMoves = findMoves(parentNode, parentNode.stateWhenAtNode, _goalList1, _goalList2)
 
@@ -578,16 +574,16 @@ def a_star(node, _goalList1, _goalList2, h_func):
                 if found is None:
                     _openList.append(newNode)
                     newNode.heuristicCost = h_func(newNode.stateWhenAtNode)
-                    newNode.totalCost += newNode.heuristicCost
+                    newNode.functionCost = newNode.heuristicCost + newNode.totalCost
                 else:
-                    if found.totalCost > newNode.totalCost:
+                    if found.functionCost > newNode.functionCost:
                         _openList.remove(found)
                         _openList.append(newNode)
                         newNode.heuristicCost = h_func(newNode.stateWhenAtNode)
-                        newNode.totalCost += newNode.heuristicCost
+                        newNode.functionCost = newNode.heuristicCost + newNode.totalCost
 
         # Sorting the open list by total cost of the nodes.
-        _openList = sorted(_openList, key=lambda n: n.totalCost)
+        _openList = sorted(_openList, key=lambda n: n.functionCost)
         i+=1
 
     _searchedNodes = _closedList

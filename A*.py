@@ -4,7 +4,9 @@ from codebase import *
 # Execute Greedy/Best-First Search
 # Load puzzles
 data = load_input("A2_Input/samplePuzzles.txt")
-puzzle = [['1','4','3','9','6'],['7','0','5','2','8']]
+puzzle = [['7','4','3','9','6', '11'],['1','0','5','2','8', '10']]
+#puzzle = [['1','3','8'],['2','5','0'],['6','4','7']]
+#puzzle = [['5','6','7','8', '12'],['1','2','3','4', '14'],['9','10','11','0', '13']]
 
 # Declare a dictionary of heuristic functions and their string component for output files
 a_star_h = {
