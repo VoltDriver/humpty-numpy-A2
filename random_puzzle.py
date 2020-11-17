@@ -57,7 +57,7 @@ for solver in solvers:
         finalNode = _goalNode
 
         # Update statistics
-        total_len_search = len(_searchedNodes)
+        total_len_search += len(_searchedNodes)
         
         nodeStack = []
         if finalNode.parent is not None:
