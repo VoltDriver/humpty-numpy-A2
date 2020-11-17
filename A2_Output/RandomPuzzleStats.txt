@@ -1,0 +1,59 @@
+UCS
+Total solution path length: 159
+Average solution path length: 11.357142857142858
+Total search path length: 717
+Average search path length: 14.34
+Total no solution: 36
+Total total cost: 167
+Average cost: 11.928571428571429
+Total execution time: 2317.050189971924 sec.
+Average execution time: 46.341003799438475 sec.
+--------------------------------
+
+GBFS Hamming Distance
+Total solution path length: 768
+Average solution path length: 24.774193548387096
+Total search path length: 5080
+Average search path length: 101.6
+Total no solution: 19
+Total total cost: 1163
+Average cost: 37.516129032258064
+Total execution time: 1312.264529466629 sec.
+Average execution time: 26.24529058933258 sec.
+--------------------------------
+
+GBFS Diagonal Distance
+Total solution path length: 729
+Average solution path length: 22.09090909090909
+Total search path length: 1628
+Average search path length: 32.56
+Total no solution: 17
+Total total cost: 989
+Average cost: 29.96969696969697
+Total execution time: 1027.1540892124176 sec.
+Average execution time: 20.54308178424835 sec.
+--------------------------------
+
+A* Hamming Distance
+Total solution path length: 537
+Average solution path length: 13.097560975609756
+Total search path length: 78
+Average search path length: 1.56
+Total no solution: 9
+Total total cost: 586
+Average cost: 14.292682926829269
+Total execution time: 761.9703114032745 sec.
+Average execution time: 15.23940622806549 sec.
+--------------------------------
+
+A* Diagonal Distance
+Total solution path length: 681
+Average solution path length: 13.62
+Total search path length: 31
+Average search path length: 0.62
+Total no solution: 0
+Total total cost: 772
+Average cost: 15.44
+Total execution time: 10.278665542602539 sec.
+Average execution time: 0.20557331085205077 sec.
+--------------------------------
