@@ -1,0 +1,36 @@
+UCS
+Total solution path length: 0
+Average solution path length: 0
+Total search path length: 4688
+Average search path length: 4688.0
+Total no solution: 1
+Total total cost: 0
+Average cost: 0
+Total execution time: 60.017022371292114 sec.
+Average execution time: 60.017022371292114 sec.
+--------------------------------
+
+GBFS Hamming Distance
+Total solution path length: 25
+Average solution path length: 25.0
+Total search path length: 835
+Average search path length: 835.0
+Total no solution: 0
+Total total cost: 38
+Average cost: 38.0
+Total execution time: 2.3254311084747314 sec.
+Average execution time: 2.3254311084747314 sec.
+--------------------------------
+
+A* Diagonal Distance
+Total solution path length: 11
+Average solution path length: 11.0
+Total search path length: 12
+Average search path length: 12.0
+Total no solution: 0
+Total total cost: 14
+Average cost: 14.0
+Total execution time: 0.005085945129394531 sec.
+Average execution time: 0.005085945129394531 sec.
+--------------------------------
+

@@ -50,7 +50,7 @@ class Node:
 
 
 # --------------- Constants ---------------
-TIMEOUT_TIME_IN_SECONDS = 900
+TIMEOUT_TIME_IN_SECONDS = 60
 
 # --------------- Global Variables ---------------
 _openList = []
@@ -229,8 +229,8 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
             oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]+1]
             oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] + 1] = "0"
 
-            wrappingNode.numberMoved = tileNames(indexOfEmpty[0], len(puzzle)-1, len(puzzle[0]), len(puzzle))
-            oneStepRight.numberMoved = tileNames(indexOfEmpty[0], indexOfEmpty[1]+1, len(puzzle[0]), len(puzzle))
+            wrappingNode.numberMoved = int(wrappingNode.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
+            oneStepRight.numberMoved = int(oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
             wrappingNode.initialized = True
             oneStepRight.initialized = True
@@ -243,8 +243,8 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
             oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]-1]
             oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]-1] = "0"
 
-            wrappingNode.numberMoved = tileNames(indexOfEmpty[0], 0, len(puzzle[0]), len(puzzle))
-            oneStepLeft.numberMoved = tileNames(indexOfEmpty[0], indexOfEmpty[1]-1, len(puzzle[0]), len(puzzle))
+            wrappingNode.numberMoved = int(wrappingNode.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
+            oneStepLeft.numberMoved = int(oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
             wrappingNode.initialized = True
             oneStepLeft.initialized = True
@@ -260,8 +260,8 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
         oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] + 1]
         oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] + 1] = "0"
 
-        oneStepLeft.numberMoved = tileNames(indexOfEmpty[0], indexOfEmpty[1]-1, len(puzzle[0]), len(puzzle))
-        oneStepRight.numberMoved = tileNames(indexOfEmpty[0], indexOfEmpty[1]+1, len(puzzle[0]), len(puzzle))
+        oneStepLeft.numberMoved = int(oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
+        oneStepRight.numberMoved = int(oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         oneStepLeft.initialized = True
         oneStepRight.initialized = True
@@ -280,20 +280,20 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
         if (indexOfEmpty[1] == 0):
             diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]+1]
             diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1] + 1] = "0"
-            diagonalNodeRightDown.numberMoved = tileNames(indexOfEmpty[0]+1, indexOfEmpty[1]+1, len(puzzle[0]), len(puzzle))
+            diagonalNodeRightDown.numberMoved = int(diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
             diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][len(puzzle[0])-1]
             diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][len(puzzle[0])-1] = "0"
-            diagonalNodeLeftDown.numberMoved = tileNames(indexOfEmpty[0], len(puzzle[0])-1, len(puzzle[0]), len(puzzle))
+            diagonalNodeLeftDown.numberMoved = int(diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         elif (indexOfEmpty[1] == (len(puzzle)-1)):
             diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][0]
             diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][0] = "0"
-            diagonalNodeRightDown.numberMoved = tileNames(indexOfEmpty[0]+1, 0, len(puzzle[0]), len(puzzle))
+            diagonalNodeRightDown.numberMoved = int(diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
             diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]-1]
             diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1] - 1] = "0"
-            diagonalNodeLeftDown.numberMoved = tileNames(indexOfEmpty[0]+1, indexOfEmpty[1]-1, len(puzzle[0]), len(puzzle))
+            diagonalNodeLeftDown.numberMoved = int(diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         diagonalNodeRightDown.initialized = True
         diagonalNodeLeftDown.initialized = True
@@ -302,20 +302,20 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
         if (indexOfEmpty[1] == 0):
             diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]-1][len(puzzle[0])-1]
             diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][len(puzzle[0])-1] = "0"
-            diagonalNodeLeftUp.numberMoved = tileNames(indexOfEmpty[0], len(puzzle[0])-1, len(puzzle[0]), len(puzzle))
+            diagonalNodeLeftUp.numberMoved = int(diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
             diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]+1]
             diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] + 1] = "0"
-            diagonalNodeRightUp.numberMoved = tileNames(indexOfEmpty[0]-1, indexOfEmpty[1]+1, len(puzzle[0]), len(puzzle))
+            diagonalNodeRightUp.numberMoved = int(diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         elif (indexOfEmpty[1] == (len(puzzle[0])-1)):
             diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][0]
             diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][0] = "0"
-            diagonalNodeRightUp.numberMoved = tileNames(indexOfEmpty[0]-1, 0, len(puzzle[0]), len(puzzle))
+            diagonalNodeRightUp.numberMoved = int(diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
             diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]-1]
             diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] - 1] = "0"
-            diagonalNodeLeftUp.numberMoved = tileNames(indexOfEmpty[0]-1, indexOfEmpty[1]-1, len(puzzle[0]), len(puzzle))
+            diagonalNodeLeftUp.numberMoved = int(diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         diagonalNodeLeftUp.initialized = True
         diagonalNodeRightUp.initialized = True
@@ -339,13 +339,13 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
         #one step down for 0
         oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]]
         oneStepDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]] = "0"
-        oneStepDown.numberMoved = tileNames(indexOfEmpty[0]+1, indexOfEmpty[1], len(puzzle[0]), len(puzzle))
+        oneStepDown.numberMoved = int(oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         #wrapping for puzzles bigger than 2
         if (len(puzzle) > 2):
             oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[len(puzzle)-1][indexOfEmpty[1]]
             oneStepUp.stateWhenAtNode[len(puzzle) - 1][indexOfEmpty[1]] = "0"
-            oneStepUp.numberMoved = tileNames(len(puzzle)-1,indexOfEmpty[1], len(puzzle[0]), len(puzzle))
+            oneStepUp.numberMoved = int(oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
         oneStepDown.initialized = True
         oneStepUp.initialized = True
 
@@ -353,13 +353,13 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
         #one step up for 0
         oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]]
         oneStepUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]] = "0"
-        oneStepUp.numberMoved = tileNames(indexOfEmpty[0]-1, indexOfEmpty[1], len(puzzle[0]), len(puzzle))
+        oneStepUp.numberMoved = int(oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         #wrapping for puzzles bigger than 2
         if (len(puzzle) > 2):
             oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepDown.stateWhenAtNode[0][indexOfEmpty[1]]
             oneStepDown.stateWhenAtNode[0][indexOfEmpty[1]] = "0"
-            oneStepDown.numberMoved = tileNames(0, indexOfEmpty[1], len(puzzle[0]), len(puzzle))
+            oneStepDown.numberMoved = int(oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
             oneStepDown.initialized = True
 
         oneStepUp.initialized = True
@@ -367,12 +367,12 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
         # one step down for 0 - normal move
         oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1]]
         oneStepDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1]] = "0"
-        oneStepDown.numberMoved = tileNames(indexOfEmpty[0]+1, indexOfEmpty[1], len(puzzle[0]), len(puzzle))
+        oneStepDown.numberMoved = int(oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         # one step up for 0 - normal move
         oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1]]
         oneStepUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1]] = "0"
-        oneStepUp.numberMoved = tileNames(indexOfEmpty[0]-1, indexOfEmpty[1], len(puzzle[0]), len(puzzle))
+        oneStepUp.numberMoved = int(oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         oneStepDown.initialized = True
         oneStepUp.initialized = True
@@ -410,7 +410,8 @@ def findSolution(node, _goalList1, _goalList2):
             _end = True
             break
 
-        possibleMoves = findMoves(_openList.pop(0), _goalList1, _goalList2)
+        parentNode = _openList.pop(0)
+        possibleMoves = findMoves(parentNode, parentNode.stateWhenAtNode, _goalList1, _goalList2)
 
         # For each of our node, check the closed list to see if it's there. If it's there, we don't want it.
         for newNode in possibleMoves:
