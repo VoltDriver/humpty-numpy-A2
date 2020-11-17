@@ -209,7 +209,7 @@ def findSolution(node):
                         _openList.append(newNode)
 
         # Sorting the open list by total cost of the nodes.
-        sorted(_openList, key=lambda n: n.totalCost)
+        _openList = sorted(_openList, key=lambda n: n.totalCost)
 
     _searchedNodes = _closedList
 
@@ -561,7 +561,7 @@ def createOutputFile(filePrefix, initialPuzzle, solutionNode, executeTime, searc
     else:
         output.write("no solution" + "\n")
 
-    output.write(str(solutionNode.totalCost) + " " + str(executeTime % 60))
+    output.write(str(solutionNode.totalCost) + " " + str(executeTime))
 
     # Close output file
     output.close()
@@ -651,7 +651,7 @@ for currentPuzzle in data:
     print("Total time taken: " + timeFormat(finalTime - _startTime))
 
     # Creating the output files
-    createOutputFile(str(counter) + "_ucs", currentPuzzle, finalNode, finalTime, _searchedNodes)
+    createOutputFile(str(counter) + "_ucs", currentPuzzle, finalNode, finalTime - _startTime, _searchedNodes)
 
     # Resetting global variables, to prepare for the next puzzle.
     resetGlobals()
