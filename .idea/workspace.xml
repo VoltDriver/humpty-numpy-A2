@@ -20,9 +20,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7bbe57d1-ccfc-41e1-9254-625cdb3eae1e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/random_puzzle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/codebase.py" beforeDir="false" afterPath="$PROJECT_DIR$/codebase.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0a_star-h1_search.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0a_star-h1_solution.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0a_star-h2_search.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0a_star-h2_solution.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0a_star-h3_search.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0a_star-h3_solution.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0gbfs-h1_search.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0gbfs-h1_solution.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0gbfs-h2_search.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0gbfs-h2_solution.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0gbfs-h3_search.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/3x3 Puzzle/0gbfs-h3_solution.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UCS.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/UCS.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/random_puzzle.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/untitled folder/0gbfs-h1_search.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/untitled folder/0gbfs-h1_solution.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/untitled folder/0gbfs-h2_search.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/untitled folder/0gbfs-h2_solution.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/untitled folder/0gbfs-h3_search.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/untitled folder/0gbfs-h3_solution.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
