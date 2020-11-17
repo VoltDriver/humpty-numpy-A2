@@ -476,8 +476,8 @@ def createOutputFile(filePrefix, initialPuzzle, solutionNode, executeTime, searc
     else:
         output.write("no solution" + "\n")
 
-    output.write(str(solutionNode.totalCost) + " " + str(executeTime % 60))
 
+    output.write(str(solutionNode.totalCost) + " " + str(executeTime))
     # Close output file
     output.close()
 
@@ -681,4 +681,5 @@ def index_2d(someList, value):
 def startTimer():
     global _startTime
     _startTime = time.time()
+
     return _startTime
