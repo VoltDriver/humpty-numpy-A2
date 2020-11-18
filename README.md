@@ -16,6 +16,9 @@ Choose your file and run it.
 
 
 --------
+
 Base code by Joel
+
 Scalability by Ines
+
 Heuristics by Ernest
