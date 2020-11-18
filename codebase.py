@@ -3,6 +3,7 @@ import time
 import numpy as np
 from random import randrange
 
+
 # --------------- Custom classes ---------------
 
 class Node:
@@ -51,6 +52,10 @@ class Node:
 
 # --------------- Constants ---------------
 TIMEOUT_TIME_IN_SECONDS = 60
+TOP_LEFT_CORNER = "0 0"
+TOP_RIGHT_CORNER = "0 3"
+BOTTOM_LEFT_CORNER = "1 0"
+BOTTOM_RIGHT_CORNER = "1 3"
 
 # --------------- Global Variables ---------------
 _openList = []
@@ -85,28 +90,30 @@ def timeout():
     else:
         return False
 
+
 # Building the goalLists, one for each goal state.
 def goalList(length, width):
     _goalList1 = []
     for row in range(width):
         _goalList1.append([])
-        for num in range(1,length+1):
-            if (row == width-1 and num == length):
+        for num in range(1, length + 1):
+            if (row == width - 1 and num == length):
                 _goalList1[row].append('0')
             else:
                 _goalList1[row].append(str(num + row * length))
 
-    #_goalList1[width-1].append("0")
+    # _goalList1[width-1].append("0")
 
     _goalList2 = []
     for row in range(width):
         _goalList2.append([])
-        for num in range(1,length*width,width):
-            if (num+row*1 == length*width):
+        for num in range(1, length * width, width):
+            if num + row * 1 == length * width:
                 _goalList2[row].append("0")
             else:
-                _goalList2[row].append(str(num+row*1))
+                _goalList2[row].append(str(num + row * 1))
     return _goalList1, _goalList2
+
 
 def load_input(filename):
     """
@@ -128,12 +135,14 @@ def load_input(filename):
 
     return puzzleList
 
+
 def puzzlegenerator(length, width):
-    x = np.random.permutation(np.arange(0,length*width)).reshape(width, length)
-    l=[]
+    x = np.random.permutation(np.arange(0, length * width)).reshape(width, length)
+    l = []
     for i in x:
-        l.append(list(i))
+        l.append([str(k) for k in i])
     return l
+
 
 # Verifies if a node is in a goal state. If it is, returns true. If not, returns false.
 def goalState(node, _goalList1, _goalList2):
@@ -174,15 +183,17 @@ def goalState(node, _goalList1, _goalList2):
 
     return isSame
 
+
 def tileNames(row, column, length, width):
-    a = np.arange(1,length*width+1)
+    a = np.arange(1, length * width + 1)
     a = a.reshape(width, length)
     for i in range(len(a[0])):
         for k in range(len(a)):
             if k == row and i == column:
                 return a[k][i]
 
-def findMoves(node,puzzle, _goalList1, _goalList2):
+
+def findMoves(node, puzzle, _goalList1, _goalList2):
     global _end
     global _goalNode
     global _openList
@@ -211,7 +222,7 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
     nodeToCopy.totalCost += costOfMove
     nodeToCopy.cost = costOfMove
     nodeToCopy.parent = node
-    #print("index %s" %indexOfEmpty)
+    # print("index %s" %indexOfEmpty)
 
     # wrapping move left and right
     wrappingNode = copy.copy(nodeToCopy)
@@ -220,13 +231,15 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
     oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
     oneStepLeft = copy.copy(nodeToCopy)
     oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
-    if (indexOfEmpty[1] == (len(puzzle[0])-1) or indexOfEmpty[1] == 0):
+    if (indexOfEmpty[1] == (len(puzzle[0]) - 1) or indexOfEmpty[1] == 0):
         if (indexOfEmpty[1] == 0):
-            #0 goes left
-            wrappingNode.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = wrappingNode.stateWhenAtNode[indexOfEmpty[0]][len(puzzle)-1]
-            wrappingNode.stateWhenAtNode[indexOfEmpty[0]][len(puzzle)-1] = "0"
-            #0 goes right normal move
-            oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]+1]
+            # 0 goes left
+            wrappingNode.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                wrappingNode.stateWhenAtNode[indexOfEmpty[0]][len(puzzle) - 1]
+            wrappingNode.stateWhenAtNode[indexOfEmpty[0]][len(puzzle) - 1] = "0"
+            # 0 goes right normal move
+            oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] + 1]
             oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] + 1] = "0"
 
             wrappingNode.numberMoved = int(wrappingNode.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
@@ -235,13 +248,15 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
             wrappingNode.initialized = True
             oneStepRight.initialized = True
 
-        elif (indexOfEmpty[1] == (len(puzzle[0])-1)):
-            #0 goes right
-            wrappingNode.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = wrappingNode.stateWhenAtNode[indexOfEmpty[0]][0]
+        elif (indexOfEmpty[1] == (len(puzzle[0]) - 1)):
+            # 0 goes right
+            wrappingNode.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                wrappingNode.stateWhenAtNode[indexOfEmpty[0]][0]
             wrappingNode.stateWhenAtNode[indexOfEmpty[0]][0] = "0"
-            #0 goes left normal move
-            oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]-1]
-            oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]-1] = "0"
+            # 0 goes left normal move
+            oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] - 1]
+            oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] - 1] = "0"
 
             wrappingNode.numberMoved = int(wrappingNode.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
             oneStepLeft.numberMoved = int(oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
@@ -251,13 +266,15 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
 
         wrappingNode.cost += 1
         wrappingNode.totalCost += 1
-        #no added cost for normal moves
+        # no added cost for normal moves
     else:
-        #no edge piece 0 goes left
-        oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] - 1]
+        # no edge piece 0 goes left
+        oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][
+            indexOfEmpty[1] - 1]
         oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] - 1] = "0"
-        #no edge piece 0 goes right
-        oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] + 1]
+        # no edge piece 0 goes right
+        oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepRight.stateWhenAtNode[indexOfEmpty[0]][
+            indexOfEmpty[1] + 1]
         oneStepRight.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1] + 1] = "0"
 
         oneStepLeft.numberMoved = int(oneStepLeft.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
@@ -266,7 +283,7 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
         oneStepLeft.initialized = True
         oneStepRight.initialized = True
 
-    #diagonal move
+    # diagonal move
     diagonalNodeRightUp = copy.copy(nodeToCopy)
     diagonalNodeRightUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
     diagonalNodeRightDown = copy.copy(nodeToCopy)
@@ -278,42 +295,54 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
 
     if (indexOfEmpty[0] == 0):
         if (indexOfEmpty[1] == 0):
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]+1]
+            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1] + 1]
             diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1] + 1] = "0"
-            diagonalNodeRightDown.numberMoved = int(diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
+            diagonalNodeRightDown.numberMoved = int(
+                diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][len(puzzle[0])-1]
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][len(puzzle[0])-1] = "0"
-            diagonalNodeLeftDown.numberMoved = int(diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
+            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0] + 1][len(puzzle[0]) - 1]
+            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][len(puzzle[0]) - 1] = "0"
+            diagonalNodeLeftDown.numberMoved = int(
+                diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
-        elif (indexOfEmpty[1] == (len(puzzle)-1)):
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][0]
-            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]+1][0] = "0"
-            diagonalNodeRightDown.numberMoved = int(diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
+        elif (indexOfEmpty[1] == (len(puzzle) - 1)):
+            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0] + 1][0]
+            diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0] + 1][0] = "0"
+            diagonalNodeRightDown.numberMoved = int(
+                diagonalNodeRightDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
-            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]-1]
+            diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1] - 1]
             diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1] - 1] = "0"
-            diagonalNodeLeftDown.numberMoved = int(diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
+            diagonalNodeLeftDown.numberMoved = int(
+                diagonalNodeLeftDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         diagonalNodeRightDown.initialized = True
         diagonalNodeLeftDown.initialized = True
 
-    elif (indexOfEmpty[0] == (len(puzzle)-1)):
+    elif (indexOfEmpty[0] == (len(puzzle) - 1)):
         if (indexOfEmpty[1] == 0):
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]-1][len(puzzle[0])-1]
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][len(puzzle[0])-1] = "0"
+            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0] - 1][len(puzzle[0]) - 1]
+            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][len(puzzle[0]) - 1] = "0"
             diagonalNodeLeftUp.numberMoved = int(diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]+1]
+            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] + 1]
             diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] + 1] = "0"
             diagonalNodeRightUp.numberMoved = int(diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
-        elif (indexOfEmpty[1] == (len(puzzle[0])-1)):
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][0]
-            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]-1][0] = "0"
+        elif (indexOfEmpty[1] == (len(puzzle[0]) - 1)):
+            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0] - 1][0]
+            diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0] - 1][0] = "0"
             diagonalNodeRightUp.numberMoved = int(diagonalNodeRightUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
-            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]-1]
+            diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+                diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] - 1]
             diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1] - 1] = "0"
             diagonalNodeLeftUp.numberMoved = int(diagonalNodeLeftUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
@@ -335,29 +364,33 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
     oneStepUp = copy.copy(nodeToCopy)
     oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
 
-    if(indexOfEmpty[0] == 0):
-        #one step down for 0
-        oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]]
-        oneStepDown.stateWhenAtNode[indexOfEmpty[0]+1][indexOfEmpty[1]] = "0"
+    if (indexOfEmpty[0] == 0):
+        # one step down for 0
+        oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+            oneStepDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1]]
+        oneStepDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1]] = "0"
         oneStepDown.numberMoved = int(oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
-        #wrapping for puzzles bigger than 2
+        # wrapping for puzzles bigger than 2
         if (len(puzzle) > 2):
-            oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[len(puzzle)-1][indexOfEmpty[1]]
+            oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[len(puzzle) - 1][
+                indexOfEmpty[1]]
             oneStepUp.stateWhenAtNode[len(puzzle) - 1][indexOfEmpty[1]] = "0"
             oneStepUp.numberMoved = int(oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
         oneStepDown.initialized = True
         oneStepUp.initialized = True
 
-    elif (indexOfEmpty[0] == (len(puzzle)-1)):
-        #one step up for 0
-        oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]]
-        oneStepUp.stateWhenAtNode[indexOfEmpty[0]-1][indexOfEmpty[1]] = "0"
+    elif (indexOfEmpty[0] == (len(puzzle) - 1)):
+        # one step up for 0
+        oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[indexOfEmpty[0] - 1][
+            indexOfEmpty[1]]
+        oneStepUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1]] = "0"
         oneStepUp.numberMoved = int(oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
-        #wrapping for puzzles bigger than 2
+        # wrapping for puzzles bigger than 2
         if (len(puzzle) > 2):
-            oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepDown.stateWhenAtNode[0][indexOfEmpty[1]]
+            oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepDown.stateWhenAtNode[0][
+                indexOfEmpty[1]]
             oneStepDown.stateWhenAtNode[0][indexOfEmpty[1]] = "0"
             oneStepDown.numberMoved = int(oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
             oneStepDown.initialized = True
@@ -365,35 +398,344 @@ def findMoves(node,puzzle, _goalList1, _goalList2):
         oneStepUp.initialized = True
     else:
         # one step down for 0 - normal move
-        oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1]]
+        oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = \
+            oneStepDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1]]
         oneStepDown.stateWhenAtNode[indexOfEmpty[0] + 1][indexOfEmpty[1]] = "0"
         oneStepDown.numberMoved = int(oneStepDown.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         # one step up for 0 - normal move
-        oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1]]
+        oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]] = oneStepUp.stateWhenAtNode[indexOfEmpty[0] - 1][
+            indexOfEmpty[1]]
         oneStepUp.stateWhenAtNode[indexOfEmpty[0] - 1][indexOfEmpty[1]] = "0"
         oneStepUp.numberMoved = int(oneStepUp.stateWhenAtNode[indexOfEmpty[0]][indexOfEmpty[1]])
 
         oneStepDown.initialized = True
         oneStepUp.initialized = True
 
-    generated.extend((wrappingNode, diagonalNodeLeftUp, diagonalNodeLeftDown, diagonalNodeRightUp, diagonalNodeRightDown, oneStepRight, oneStepLeft, oneStepDown, oneStepUp))
+    generated.extend((
+        wrappingNode, diagonalNodeLeftUp, diagonalNodeLeftDown, diagonalNodeRightUp, diagonalNodeRightDown,
+        oneStepRight, oneStepLeft, oneStepDown, oneStepUp))
 
     for k in range(3):
         for i in generated:
             if not i.initialized:
                 generated.remove(i)
 
-
     for newNode in generated:
-        if goalState(newNode,_goalList1, _goalList2):
+        if goalState(newNode, _goalList1, _goalList2):
             _end = True
             _goalNode = newNode
             return generated
 
     return generated
 
-#UCS
+
+def findMovesBruteForce(node, _goalList1, _goalList2):
+    global _end
+    global _goalNode
+    global _openList
+    global _closedList
+
+    if _end:
+        return
+
+    _closedList.append(node)
+
+    # Check if we are at goalState
+    if goalState(node, _goalList1, _goalList2):
+        _goalNode = node
+        _end = True
+        return
+
+    # find where the empty space is in node's gamestate
+    indexOfEmpty = node.getEmptySpaceIndex()
+
+    generated = []
+
+    # Initializing Node to copy
+    costOfMove = 1
+    nodeToCopy = copy.copy(node)
+    nodeToCopy.stateWhenAtNode = copy.deepcopy(node.stateWhenAtNode)
+    nodeToCopy.totalCost += costOfMove
+    nodeToCopy.cost = costOfMove
+    nodeToCopy.parent = node
+
+    if indexOfEmpty == TOP_LEFT_CORNER:
+        # Wrapping move
+        wrappingNode = copy.copy(nodeToCopy)
+        wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        wrappingNode.numberMoved = wrappingNode.stateWhenAtNode[0][3]
+        wrappingNode.stateWhenAtNode[0][0] = wrappingNode.stateWhenAtNode[0][3]
+        wrappingNode.stateWhenAtNode[0][3] = "0"
+        wrappingNode.cost += 1
+        wrappingNode.totalCost += 1
+
+        # Diagonal move
+        diagonalNode = copy.copy(nodeToCopy)
+        diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        diagonalNode.cost += 2
+        diagonalNode.totalCost += 2
+        diagonalNode.numberMoved = diagonalNode.stateWhenAtNode[1][1]
+        diagonalNode.stateWhenAtNode[0][0] = diagonalNode.stateWhenAtNode[1][1]
+        diagonalNode.stateWhenAtNode[1][1] = "0"
+
+        # OpposedCorner move
+        opposedCorner = copy.copy(nodeToCopy)
+        opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        opposedCorner.cost += 2
+        opposedCorner.totalCost += 2
+        opposedCorner.numberMoved = opposedCorner.stateWhenAtNode[1][3]
+        opposedCorner.stateWhenAtNode[0][0] = opposedCorner.stateWhenAtNode[1][3]
+        opposedCorner.stateWhenAtNode[1][3] = "0"
+
+        # Normal move, one step right
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[0][1]
+        oneStepRight.stateWhenAtNode[0][0] = oneStepRight.stateWhenAtNode[0][1]
+        oneStepRight.stateWhenAtNode[0][1] = "0"
+
+        # Normal move, one step down
+        oneStepDown = copy.copy(nodeToCopy)
+        oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepDown.numberMoved = oneStepDown.stateWhenAtNode[1][0]
+        oneStepDown.stateWhenAtNode[0][0] = oneStepDown.stateWhenAtNode[1][0]
+        oneStepDown.stateWhenAtNode[1][0] = "0"
+
+        generated.extend((wrappingNode, diagonalNode, opposedCorner, oneStepRight, oneStepDown))
+    elif indexOfEmpty == TOP_RIGHT_CORNER:
+        # Wrapping move
+        wrappingNode = copy.copy(nodeToCopy)
+        wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        wrappingNode.numberMoved = wrappingNode.stateWhenAtNode[0][0]
+        wrappingNode.stateWhenAtNode[0][3] = wrappingNode.stateWhenAtNode[0][0]
+        wrappingNode.stateWhenAtNode[0][0] = "0"
+        wrappingNode.cost += 1
+        wrappingNode.totalCost += 1
+
+        # Diagonal move
+        diagonalNode = copy.copy(nodeToCopy)
+        diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        diagonalNode.cost += 2
+        diagonalNode.totalCost += 2
+        diagonalNode.numberMoved = diagonalNode.stateWhenAtNode[1][2]
+        diagonalNode.stateWhenAtNode[0][3] = diagonalNode.stateWhenAtNode[1][2]
+        diagonalNode.stateWhenAtNode[1][2] = "0"
+
+        # OpposedCorner move
+        opposedCorner = copy.copy(nodeToCopy)
+        opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        opposedCorner.cost += 2
+        opposedCorner.totalCost += 2
+        opposedCorner.numberMoved = opposedCorner.stateWhenAtNode[1][0]
+        opposedCorner.stateWhenAtNode[0][3] = opposedCorner.stateWhenAtNode[1][0]
+        opposedCorner.stateWhenAtNode[1][0] = "0"
+
+        # Normal move, one step left
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[0][2]
+        oneStepLeft.stateWhenAtNode[0][3] = oneStepLeft.stateWhenAtNode[0][2]
+        oneStepLeft.stateWhenAtNode[0][2] = "0"
+
+        # Normal move, one step down
+        oneStepDown = copy.copy(nodeToCopy)
+        oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepDown.stateWhenAtNode[0][3] = oneStepDown.stateWhenAtNode[1][3]
+        oneStepDown.stateWhenAtNode[1][3] = "0"
+
+        generated.extend((wrappingNode, diagonalNode, opposedCorner, oneStepLeft, oneStepDown))
+
+    elif indexOfEmpty == BOTTOM_LEFT_CORNER:
+        # Wrapping move
+        wrappingNode = copy.copy(nodeToCopy)
+        wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        wrappingNode.numberMoved = wrappingNode.stateWhenAtNode[1][3]
+        wrappingNode.stateWhenAtNode[1][0] = wrappingNode.stateWhenAtNode[1][3]
+        wrappingNode.stateWhenAtNode[1][3] = "0"
+        wrappingNode.cost += 1
+        wrappingNode.totalCost += 1
+
+        # Diagonal move
+        diagonalNode = copy.copy(nodeToCopy)
+        diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        diagonalNode.cost += 2
+        diagonalNode.totalCost += 2
+        diagonalNode.numberMoved = diagonalNode.stateWhenAtNode[0][1]
+        diagonalNode.stateWhenAtNode[1][0] = diagonalNode.stateWhenAtNode[0][1]
+        diagonalNode.stateWhenAtNode[0][1] = "0"
+
+        # OpposedCorner move
+        opposedCorner = copy.copy(nodeToCopy)
+        opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        opposedCorner.cost += 2
+        opposedCorner.totalCost += 2
+        opposedCorner.numberMoved = opposedCorner.stateWhenAtNode[0][3]
+        opposedCorner.stateWhenAtNode[1][0] = opposedCorner.stateWhenAtNode[0][3]
+        opposedCorner.stateWhenAtNode[0][3] = "0"
+
+        # Normal move, one step right
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[1][1]
+        oneStepRight.stateWhenAtNode[1][0] = oneStepRight.stateWhenAtNode[1][1]
+        oneStepRight.stateWhenAtNode[1][1] = "0"
+
+        # Normal move, one step up
+        oneStepUp = copy.copy(nodeToCopy)
+        oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepUp.numberMoved = oneStepUp.stateWhenAtNode[0][0]
+        oneStepUp.stateWhenAtNode[1][0] = oneStepUp.stateWhenAtNode[0][0]
+        oneStepUp.stateWhenAtNode[0][0] = "0"
+
+        generated.extend((wrappingNode, diagonalNode, opposedCorner, oneStepRight, oneStepUp))
+    elif indexOfEmpty == BOTTOM_RIGHT_CORNER:
+        # Wrapping move
+        wrappingNode = copy.copy(nodeToCopy)
+        wrappingNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        wrappingNode.numberMoved = wrappingNode.stateWhenAtNode[1][0]
+        wrappingNode.stateWhenAtNode[1][3] = wrappingNode.stateWhenAtNode[1][0]
+        wrappingNode.stateWhenAtNode[1][0] = "0"
+        wrappingNode.cost += 1
+        wrappingNode.totalCost += 1
+
+        # Diagonal move
+        diagonalNode = copy.copy(nodeToCopy)
+        diagonalNode.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        diagonalNode.cost += 2
+        diagonalNode.totalCost += 2
+        diagonalNode.numberMoved = diagonalNode.stateWhenAtNode[0][2]
+        diagonalNode.stateWhenAtNode[1][3] = diagonalNode.stateWhenAtNode[0][2]
+        diagonalNode.stateWhenAtNode[0][2] = "0"
+
+        # OpposedCorner move
+        opposedCorner = copy.copy(nodeToCopy)
+        opposedCorner.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        opposedCorner.cost += 2
+        opposedCorner.totalCost += 2
+        opposedCorner.numberMoved = opposedCorner.stateWhenAtNode[0][0]
+        opposedCorner.stateWhenAtNode[1][3] = opposedCorner.stateWhenAtNode[0][0]
+        opposedCorner.stateWhenAtNode[0][0] = "0"
+
+        # Normal move, one step left
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[1][2]
+        oneStepLeft.stateWhenAtNode[1][3] = oneStepLeft.stateWhenAtNode[1][2]
+        oneStepLeft.stateWhenAtNode[1][2] = "0"
+
+        # Normal move, one step up
+        oneStepUp = copy.copy(nodeToCopy)
+        oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepUp.numberMoved = oneStepUp.stateWhenAtNode[0][3]
+        oneStepUp.stateWhenAtNode[1][3] = oneStepUp.stateWhenAtNode[0][3]
+        oneStepUp.stateWhenAtNode[0][3] = "0"
+
+        generated.extend((wrappingNode, diagonalNode, opposedCorner, oneStepLeft, oneStepUp))
+    elif indexOfEmpty == "0 1":
+        # Normal move, one step left
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[0][0]
+        oneStepLeft.stateWhenAtNode[0][1] = oneStepLeft.stateWhenAtNode[0][0]
+        oneStepLeft.stateWhenAtNode[0][0] = "0"
+
+        # Normal move, one step right
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[0][2]
+        oneStepRight.stateWhenAtNode[0][1] = oneStepRight.stateWhenAtNode[0][2]
+        oneStepRight.stateWhenAtNode[0][2] = "0"
+
+        # Normal move, one step down
+        oneStepDown = copy.copy(nodeToCopy)
+        oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepDown.numberMoved = oneStepDown.stateWhenAtNode[1][1]
+        oneStepDown.stateWhenAtNode[0][1] = oneStepDown.stateWhenAtNode[1][1]
+        oneStepDown.stateWhenAtNode[1][1] = "0"
+
+        generated.extend((oneStepRight, oneStepLeft, oneStepDown))
+
+    elif indexOfEmpty == "0 2":
+        # Normal move, one step left
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[0][1]
+        oneStepLeft.stateWhenAtNode[0][2] = oneStepLeft.stateWhenAtNode[0][1]
+        oneStepLeft.stateWhenAtNode[0][1] = "0"
+
+        # Normal move, one step right
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[0][3]
+        oneStepRight.stateWhenAtNode[0][2] = oneStepRight.stateWhenAtNode[0][3]
+        oneStepRight.stateWhenAtNode[0][3] = "0"
+
+        # Normal move, one step down
+        oneStepDown = copy.copy(nodeToCopy)
+        oneStepDown.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepDown.numberMoved = oneStepDown.stateWhenAtNode[1][2]
+        oneStepDown.stateWhenAtNode[0][2] = oneStepDown.stateWhenAtNode[1][2]
+        oneStepDown.stateWhenAtNode[1][2] = "0"
+
+        generated.extend((oneStepRight, oneStepLeft, oneStepDown))
+    elif indexOfEmpty == "1 1":
+        # Normal move, one step left
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[1][0]
+        oneStepLeft.stateWhenAtNode[1][1] = oneStepLeft.stateWhenAtNode[1][0]
+        oneStepLeft.stateWhenAtNode[1][0] = "0"
+
+        # Normal move, one step right
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[1][2]
+        oneStepRight.stateWhenAtNode[1][1] = oneStepRight.stateWhenAtNode[1][2]
+        oneStepRight.stateWhenAtNode[1][2] = "0"
+
+        # Normal move, one step up
+        oneStepUp = copy.copy(nodeToCopy)
+        oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepUp.numberMoved = oneStepUp.stateWhenAtNode[0][1]
+        oneStepUp.stateWhenAtNode[1][1] = oneStepUp.stateWhenAtNode[0][1]
+        oneStepUp.stateWhenAtNode[0][1] = "0"
+
+        generated.extend((oneStepRight, oneStepLeft, oneStepUp))
+    else:
+        # Normal move, one step left
+        oneStepLeft = copy.copy(nodeToCopy)
+        oneStepLeft.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepLeft.numberMoved = oneStepLeft.stateWhenAtNode[1][1]
+        oneStepLeft.stateWhenAtNode[1][2] = oneStepLeft.stateWhenAtNode[1][1]
+        oneStepLeft.stateWhenAtNode[1][1] = "0"
+
+        # Normal move, one step right
+        oneStepRight = copy.copy(nodeToCopy)
+        oneStepRight.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepRight.numberMoved = oneStepRight.stateWhenAtNode[1][3]
+        oneStepRight.stateWhenAtNode[1][2] = oneStepRight.stateWhenAtNode[1][3]
+        oneStepRight.stateWhenAtNode[1][3] = "0"
+
+        # Normal move, one step up
+        oneStepUp = copy.copy(nodeToCopy)
+        oneStepUp.stateWhenAtNode = copy.deepcopy(nodeToCopy.stateWhenAtNode)
+        oneStepUp.numberMoved = oneStepUp.stateWhenAtNode[0][2]
+        oneStepUp.stateWhenAtNode[1][2] = oneStepUp.stateWhenAtNode[0][2]
+        oneStepUp.stateWhenAtNode[0][2] = "0"
+
+        generated.extend((oneStepRight, oneStepLeft, oneStepUp))
+
+    for newNode in generated:
+        if goalState(newNode, _goalList1, _goalList2):
+            _end = True
+            _goalNode = newNode
+            return generated
+
+    return generated
+
+
+# UCS
 def findSolution(node, _goalList1, _goalList2):
     global _timeout
     global _end
@@ -411,7 +753,14 @@ def findSolution(node, _goalList1, _goalList2):
             break
 
         parentNode = _openList.pop(0)
-        possibleMoves = findMoves(parentNode, parentNode.stateWhenAtNode, _goalList1, _goalList2)
+
+        possibleMoves = None
+
+        if (len(node.stateWhenAtNode) == 2 and
+                len(node.stateWhenAtNode[0]) == 4):
+            possibleMoves = findMovesBruteForce(parentNode, _goalList1, _goalList2)
+        else:
+            possibleMoves = findMoves(parentNode, parentNode.stateWhenAtNode, _goalList1, _goalList2)
 
         # For each of our node, check the closed list to see if it's there. If it's there, we don't want it.
         for newNode in possibleMoves:
@@ -476,7 +825,6 @@ def createOutputFile(filePrefix, initialPuzzle, solutionNode, executeTime, searc
     else:
         output.write("no solution" + "\n")
 
-
     output.write(str(solutionNode.totalCost) + " " + str(executeTime))
     # Close output file
     output.close()
@@ -532,7 +880,14 @@ def gbfs(node, _goalList1, _goalList2, h_func):
             break
 
         parentNode = _openList.pop(0)
-        possibleMoves = findMoves(parentNode, parentNode.stateWhenAtNode, _goalList1, _goalList2)
+
+        possibleMoves = None
+
+        if (len(node.stateWhenAtNode) == 2 and
+                len(node.stateWhenAtNode[0]) == 4):
+            possibleMoves = findMovesBruteForce(parentNode, _goalList1, _goalList2)
+        else:
+            possibleMoves = findMoves(parentNode, parentNode.stateWhenAtNode, _goalList1, _goalList2)
 
         # For each of our node, check the closed list to see if it's there. If it's there, we don't want it.
         for newNode in possibleMoves:
@@ -542,7 +897,7 @@ def gbfs(node, _goalList1, _goalList2, h_func):
                 found = next((n for n in _openList if n.stateWhenAtNode == newNode.stateWhenAtNode), None)
                 if found is None:
                     newNode.heuristicCost = h_func(newNode.stateWhenAtNode)
-                    #newNode.functionCost = newNode.totalCost + newNode.heuristicCost
+                    # newNode.functionCost = newNode.totalCost + newNode.heuristicCost
                     _openList.append(newNode)
 
         # Sorting the open list by heuristic of the nodes.
@@ -558,6 +913,7 @@ def gbfs(node, _goalList1, _goalList2, h_func):
     else:
         print("Failed to find a solution to the puzzle.")
 
+
 def a_star(node, _goalList1, _goalList2, h_func):
     global _timeout
     global _end
@@ -568,7 +924,7 @@ def a_star(node, _goalList1, _goalList2, h_func):
     _openList.append(node)
 
     # For as long as we don't have a solution, pop the first node of the open list.
-    i=0
+    i = 0
     while not _end and len(_openList) != 0:
         if timeout():
             _timeout = True
@@ -576,9 +932,14 @@ def a_star(node, _goalList1, _goalList2, h_func):
             break
 
         parentNode = _openList.pop(0)
-        #print(parentNode.stateWhenAtNode)
-        #print(parentNode.totalCost)
-        possibleMoves = findMoves(parentNode, parentNode.stateWhenAtNode, _goalList1, _goalList2)
+
+        possibleMoves = None
+
+        if (len(node.stateWhenAtNode) == 2 and
+                len(node.stateWhenAtNode[0]) == 4):
+            possibleMoves = findMovesBruteForce(parentNode, _goalList1, _goalList2)
+        else:
+            possibleMoves = findMoves(parentNode, parentNode.stateWhenAtNode, _goalList1, _goalList2)
 
         # For each of our node, check the closed list to see if it's there. If it's there, we don't want it.
         for newNode in possibleMoves:
@@ -600,7 +961,7 @@ def a_star(node, _goalList1, _goalList2, h_func):
 
         # Sorting the open list by total cost of the nodes.
         _openList = sorted(_openList, key=lambda n: n.functionCost)
-        i+=1
+        i += 1
 
     _searchedNodes = _closedList
 
@@ -611,6 +972,7 @@ def a_star(node, _goalList1, _goalList2, h_func):
         print("Timed out. Longer than " + str(TIMEOUT_TIME_IN_SECONDS) + " seconds passed.")
     else:
         print("Failed to find a solution to the puzzle.")
+
 
 # h0 given in assignment insructions
 def h0(nodeState):

@@ -1,70 +1,70 @@
 UCS
-Total solution path length: 70
-Average solution path length: 11.666666666666666
-Total search path length: 294123
-Average search path length: 5882.46
-Total no solution: 44
-Total total cost: 73
-Average cost: 12.166666666666666
-Total execution time: 2766.4678440093994 sec.
-Average execution time: 55.32935688018799 sec.
-Total execution time for solved puzzles: 125.94766044616699 sec.
-Average execution time for solved puzzles: 20.99127674 sec.
+Total solution path length: 426
+Average solution path length: 10.923076923076923
+Total search path length: 305160
+Average search path length: 6103.2
+Total no solution: 11
+Total total cost: 503
+Average cost: 12.897435897435898
+Total execution time: 1282.6991901397705 sec.
+Average execution time: 25.65398380279541 sec.
+Total execution time for solved puzzles: 622.6219410896301 sec.
+Average execution time for solved puzzles: 15.964665156144362 sec.
 --------------------------------
 
 GBFS Hamming Distance
-Total solution path length: 739
-Average solution path length: 24.633333333333333
-Total search path length: 165393
-Average search path length: 3307.86
-Total no solution: 20
-Total total cost: 1139
-Average cost: 37.96666666666667
-Total execution time: 1345.0235714912415 sec.
-Average execution time: 26.90047142982483 sec.
-Total execution time for solved puzzles: 144.77728939056396 sec.
-Average execution time for solved puzzles: 4.825909646 sec.
+Total solution path length: 817
+Average solution path length: 16.34
+Total search path length: 3358
+Average search path length: 67.16
+Total no solution: 0
+Total total cost: 1366
+Average cost: 27.32
+Total execution time: 0.4117624759674072 sec.
+Average execution time: 0.008235249519348144 sec.
+Total execution time for solved puzzles: 0.4117624759674072 sec.
+Average execution time for solved puzzles: 0.008235249519348144 sec.
 --------------------------------
 
 GBFS Diagonal Distance
-Total solution path length: 783
-Average solution path length: 23.029411764705884
-Total search path length: 100491
-Average search path length: 2009.82
-Total no solution: 16
-Total total cost: 1052
-Average cost: 30.941176470588236
-Total execution time: 962.3538444042206 sec.
-Average execution time: 19.24707688808441 sec.
-Total execution time for solved puzzles: 2.100060224533081 sec.
-Average execution time for solved puzzles: 0.061766477 sec.
+Total solution path length: 919
+Average solution path length: 18.38
+Total search path length: 2012
+Average search path length: 40.24
+Total no solution: 0
+Total total cost: 1284
+Average cost: 25.68
+Total execution time: 0.24989962577819824 sec.
+Average execution time: 0.0049979925155639645 sec.
+Total execution time for solved puzzles: 0.24989962577819824 sec.
+Average execution time for solved puzzles: 0.0049979925155639645 sec.
 --------------------------------
 
 A* Hamming Distance
-Total solution path length: 527
-Average solution path length: 14.243243243243244
-Total search path length: 164201
-Average search path length: 3284.02
-Total no solution: 13
-Total total cost: 572
-Average cost: 15.45945945945946
-Total execution time: 1255.199903011322 sec.
-Average execution time: 25.10399806022644 sec.
-Total execution time for solved puzzles: 475.0693345069885 sec.
-Average execution time for solved puzzles: 12.83971174 sec.
+Total solution path length: 579
+Average solution path length: 11.58
+Total search path length: 30709
+Average search path length: 614.18
+Total no solution: 0
+Total total cost: 679
+Average cost: 13.58
+Total execution time: 16.785699605941772 sec.
+Average execution time: 0.33571399211883546 sec.
+Total execution time for solved puzzles: 16.785699605941772 sec.
+Average execution time for solved puzzles: 0.33571399211883546 sec.
 --------------------------------
 
 A* Diagonal Distance
-Total solution path length: 747
-Average solution path length: 14.94
-Total search path length: 11574
-Average search path length: 231.48
+Total solution path length: 595
+Average solution path length: 11.9
+Total search path length: 3875
+Average search path length: 77.5
 Total no solution: 0
-Total total cost: 833
-Average cost: 16.66
-Total execution time: 8.769878387451172 sec.
-Average execution time: 0.17539756774902343 sec.
-Total execution time for solved puzzles: 8.769878387451172 sec.
-Average execution time for solved puzzles: 0.17539756774902343 sec.
+Total total cost: 696
+Average cost: 13.92
+Total execution time: 0.6447441577911377 sec.
+Average execution time: 0.012894883155822753 sec.
+Total execution time for solved puzzles: 0.6447441577911377 sec.
+Average execution time for solved puzzles: 0.012894883155822753 sec.
 --------------------------------
 
