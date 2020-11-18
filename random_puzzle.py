@@ -36,6 +36,9 @@ for solver in solvers:
     total_no_solution = 0
     total_cost = 0
     total_execution_time = 0
+    total_exec_time_solved = 0
+    
+    print(solver + '\n')
     
     # Solve each puzzle
     for puzzle in data:
@@ -69,6 +72,7 @@ for solver in solvers:
                 curNode = curNode.parent
             total_len_solution += len(nodeStack) + 1 # Initial state not included in nodeStack
             total_cost += finalNode.totalCost
+            total_exec_time_solved += finalTime - startTime
         else:
             total_no_solution += 1
         
@@ -78,13 +82,15 @@ for solver in solvers:
         resetGlobals()
         
     # Calculate averages 
-    avg_len_solution = 0
-    avg_cost = 0
+    avg_len_solution = -1
+    avg_cost = -1
     avg_len_search = total_len_search / num_rand_puzzles
     avg_execution_time = total_execution_time / num_rand_puzzles
+    avg_exec_time_solved = -1
     if (num_rand_puzzles - total_no_solution > 0):
         avg_len_solution = total_len_solution / (num_rand_puzzles - total_no_solution)
         avg_cost = total_cost / (num_rand_puzzles - total_no_solution)
+        avg_exec_time_solved = total_exec_time_solved / (num_rand_puzzles - total_no_solution)
 
     # Write in an output file the stats so they can be noted in slides
     output.write(solver + '\n')
@@ -97,6 +103,10 @@ for solver in solvers:
     output.write('Average cost: ' + str(avg_cost) + '\n')
     output.write('Total execution time: ' + str(total_execution_time) + ' sec.\n')
     output.write('Average execution time: ' + str(avg_execution_time) + ' sec.\n')
+    output.write('Total execution time for solved puzzles: ' + str(total_exec_time_solved) + ' sec.\n')
+    output.write('Average execution time for solved puzzles: ' + str(avg_exec_time_solved) + ' sec.\n')
     output.write('--------------------------------\n\n')
+    
+    print('---------------------\n')
 
 output.close()
