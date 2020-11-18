@@ -13,3 +13,9 @@ Here are the possible files to run:
 Choose your file and run it.
 
 2) In your file explorer or your IDE, look at the output produced inside the folder A2_Output
+
+
+--------
+Base code by Joel
+Scalability by Ines
+Heuristics by Ernest
